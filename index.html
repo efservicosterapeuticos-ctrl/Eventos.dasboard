@@ -1764,11 +1764,6 @@ async function exportPDF() {
 
   sectionTitle('Distribuição NPS', 214, 96);
   card(207, 101, 76, 66);
-  stackedBar(216, 114, 58, 8, [
-    { count: nps10, color: C.green },
-    { count: nps9, color: C.gold },
-    { count: npsOther, color: C.border }
-  ]);
 
   const dist = [
     ['Nota 10', nps10, pct(nps10) + '%', C.green],
@@ -1776,19 +1771,51 @@ async function exportPDF() {
     ['Outras', npsOther, pct(npsOther) + '%', C.border]
   ];
 
+  // Prioriza o gráfico pizza/donut usando o próprio canvas já renderizado no dashboard
+  const npsCanvas = document.getElementById('chartNPS');
+  if (npsCanvas) {
+    try {
+      const npsImg = npsCanvas.toDataURL('image/png', 1.0);
+      doc.addImage(npsImg, 'PNG', 213, 106, 42, 42, undefined, 'FAST');
+    } catch (e) {
+      // fallback visual caso a captura do canvas falhe
+      stackedBar(216, 114, 58, 8, [
+        { count: nps10, color: C.green },
+        { count: nps9, color: C.gold },
+        { count: npsOther, color: C.border }
+      ]);
+    }
+  } else {
+    stackedBar(216, 114, 58, 8, [
+      { count: nps10, color: C.green },
+      { count: nps9, color: C.gold },
+      { count: npsOther, color: C.border }
+    ]);
+  }
+
+  // número central de apoio, reforçando a leitura executiva
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(...C.brownDark);
+  doc.text(fmt(npsMedia), 262, 118, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.setTextColor(...C.muted);
+  doc.text('média', 262, 122, { align: 'center' });
+
   dist.forEach((d, i) => {
-    const y = 134 + i * 10;
+    const y = 138 + i * 10;
     doc.setFillColor(...d[3]);
-    doc.roundedRect(217, y - 4, 4, 4, 1, 1, 'F');
+    doc.roundedRect(216, y - 4, 4, 4, 1, 1, 'F');
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...C.muted);
-    doc.text(d[0], 224, y);
+    doc.text(d[0], 223, y);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...C.brownDark);
     doc.text(String(d[1]), 258, y, { align: 'right' });
     doc.setTextColor(...C.muted);
-    doc.text(d[2], 274, y, { align: 'right' });
+    doc.text(d[2], 275, y, { align: 'right' });
   });
 
   sectionTitle('Principais pontos de melhoria', 14, 180);
