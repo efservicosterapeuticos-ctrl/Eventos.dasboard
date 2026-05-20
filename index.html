@@ -1531,259 +1531,357 @@ function renderRespondentes() {
 
 // ─── EXPORT PDF ──────────────────────────────────────────────────────
 async function exportPDF() {
-  showToast('⏳ Gerando PDF...');
+  if (!allData || !allData.length) {
+    allData = getEmbeddedData();
+  }
+
+  showToast('⏳ Gerando PDF executivo...');
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
-  const W = 297, H = 210;
-  const brown = [61, 37, 16];
-  const gold = [200, 151, 58];
-  const green = [74, 124, 89];
-  const cream = [245, 240, 232];
-  const white = [253, 250, 245];
-  const textMuted = [122, 92, 66];
+  const W = 297;
+  const H = 210;
 
-  // Helper
-  const rgbStr = (r,g,b) => [r,g,b];
+  const C = {
+    cream: [245, 240, 232],
+    cream2: [237, 230, 214],
+    white: [253, 250, 245],
+    brownDark: [61, 37, 16],
+    brown: [107, 74, 42],
+    brownLight: [139, 99, 64],
+    gold: [200, 151, 58],
+    goldLight: [228, 185, 106],
+    green: [74, 124, 89],
+    greenLight: [107, 160, 130],
+    muted: [122, 92, 66],
+    border: [212, 196, 168]
+  };
 
-  // BG
-  doc.setFillColor(...cream);
-  doc.rect(0, 0, W, H, 'F');
-
-  // Left stripe
-  doc.setFillColor(...brown);
-  doc.rect(0, 0, 54, H, 'F');
-
-  // Gold accent line
-  doc.setFillColor(...gold);
-  doc.rect(54, 0, 2, H, 'F');
-
-  // Logo area
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(200, 151, 58);
-  doc.text('ELIS FORMAIO', 27, 22, { align: 'center' });
-  doc.setFontSize(8);
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica', 'normal');
-  doc.text('LIDERANÇA 12', 27, 30, { align: 'center' });
-  doc.text('Dashboard de Resultados', 27, 36, { align: 'center' });
-
-  // Divider in sidebar
-  doc.setDrawColor(255,255,255);
-  doc.setGlobalAlpha = 0.1;
-  doc.line(10, 42, 44, 42);
-
-  // Sidebar info
   const total = allData.length;
   const npsMedia = avg(allData.map(d => d.nps));
   const mediaAt = avg(allData.map(d => d.atendimento));
   const mediaAl = avg(allData.map(d => d.alimentacao));
   const mediaMat = avg(allData.map(d => d.material));
   const mediaCont = avg(allData.map(d => d.conteudo));
+  const satGeral = avg([
+    ...allData.map(d => d.nps),
+    ...allData.map(d => d.atendimento),
+    ...allData.map(d => d.alimentacao),
+    ...allData.map(d => d.material),
+    ...allData.map(d => d.conteudo)
+  ]);
 
-  const sidebarItems = [
-    { label: 'Respondentes', value: total.toString() },
-    { label: 'NPS Médio', value: npsMedia.toFixed(1) + '/10' },
-    { label: 'Atendimento', value: mediaAt.toFixed(1) + '/10' },
-    { label: 'Alimentação', value: mediaAl.toFixed(1) + '/10' },
-    { label: 'Material', value: mediaMat.toFixed(1) + '/10' },
-    { label: 'Conteúdo', value: mediaCont.toFixed(1) + '/10' },
-  ];
-
-  let sy = 52;
-  sidebarItems.forEach(item => {
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(180, 150, 110);
-    doc.text(item.label.toUpperCase(), 27, sy, { align: 'center' });
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.setTextColor(255, 255, 255);
-    doc.text(item.value, 27, sy + 7, { align: 'center' });
-    sy += 22;
-  });
-
-  // Date
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(130, 100, 70);
-  doc.text('Gerado em ' + new Date().toLocaleDateString('pt-BR'), 27, H - 8, { align: 'center' });
-
-  // MAIN CONTENT
-  const mx = 62;
-  const mw = W - mx - 8;
-
-  // Title
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.setTextColor(...brown);
-  doc.text('Resultado da Pesquisa de Satisfação', mx, 18);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...textMuted);
-  doc.text('Imersão de Liderança Humanizada e Positiva — Serra Gaúcha, Maio 2026', mx, 25);
-
-  // Divider
-  doc.setDrawColor(...gold);
-  doc.setLineWidth(0.5);
-  doc.line(mx, 29, W - 8, 29);
-
-  // ---- SECTION: CRITERIOS ----
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...textMuted);
-  doc.text('AVALIAÇÕES POR CRITÉRIO', mx, 37);
-
-  const criterios = [
-    { label: 'NPS', value: npsMedia, color: gold },
-    { label: 'Atendimento', value: mediaAt, color: green },
-    { label: 'Alimentação', value: mediaAl, color: [139, 99, 64] },
-    { label: 'Material', value: mediaMat, color: [107, 160, 130] },
-    { label: 'Conteúdo', value: mediaCont, color: brown },
-  ];
-
-  const barX = mx;
-  const barY = 41;
-  const barH = 12;
-  const barGap = 16;
-  const barMaxW = mw * 0.55;
-
-  criterios.forEach((c, i) => {
-    const y = barY + i * barGap;
-    const fillW = (c.value / 10) * barMaxW;
-
-    // Label
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...textMuted);
-    doc.text(c.label, barX, y + 7);
-
-    // Track
-    doc.setFillColor(220, 210, 195);
-    doc.roundedRect(barX + 28, y + 1, barMaxW, barH - 2, 2, 2, 'F');
-
-    // Fill
-    doc.setFillColor(...c.color);
-    doc.roundedRect(barX + 28, y + 1, fillW, barH - 2, 2, 2, 'F');
-
-    // Value
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...brown);
-    doc.text(c.value.toFixed(1), barX + 28 + barMaxW + 4, y + 8);
-  });
-
-  // NPS Distribution
   const nps10 = allData.filter(d => d.nps === 10).length;
   const nps9 = allData.filter(d => d.nps === 9).length;
   const npsOther = total - nps10 - nps9;
 
-  const pieX = mx + barMaxW + 50;
-  const pieY = 65;
-  const pieR = 20;
+  const pct = n => total ? Math.round((n / total) * 100) : 0;
+  const fmt = n => (Number.isFinite(n) ? n.toFixed(1).replace('.', ',') : '0,0');
+  const safe = value => String(value || '')
+    .normalize('NFKC')
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...textMuted);
-  doc.text('DISTRIBUIÇÃO NPS', pieX - 10, 37);
+  function pageBg() {
+    doc.setFillColor(...C.cream);
+    doc.rect(0, 0, W, H, 'F');
+    doc.setFillColor(...C.brownDark);
+    doc.rect(0, 0, W, 8, 'F');
+    doc.setFillColor(...C.gold);
+    doc.rect(0, 8, W, 1.2, 'F');
+  }
 
-  // Simple pie via arcs
-  const pieData = [
-    { val: nps10 / total, color: green, label: `Nota 10: ${nps10}` },
-    { val: nps9 / total, color: gold, label: `Nota 9: ${nps9}` },
-    { val: npsOther / total, color: [212, 196, 168], label: `Outras: ${npsOther}` },
-  ];
-
-  let startAngle = -Math.PI / 2;
-  pieData.forEach(seg => {
-    const endAngle = startAngle + seg.val * 2 * Math.PI;
-    doc.setFillColor(...seg.color);
-    // jsPDF doesn't have arc fill natively — use ellipse segments approximation
-    const steps = 30;
-    const pts = [[pieX, pieY]];
-    for (let s = 0; s <= steps; s++) {
-      const a = startAngle + (endAngle - startAngle) * s / steps;
-      pts.push([pieX + pieR * Math.cos(a), pieY + pieR * Math.sin(a)]);
-    }
-    // Draw filled polygon
-    doc.setFillColor(...seg.color);
-    doc.setDrawColor(...seg.color);
-    const pathStr = pts.map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(' ') + ' Z';
-    // fallback: just draw a filled arc via lines
-    doc.lines(
-      pts.slice(1).map((p, i) => [p[0] - pts[i][0], p[1] - pts[i][1]]),
-      pts[0][0], pts[0][1], [1, 1], 'F', true
-    );
-    startAngle = endAngle;
-  });
-
-  // Center hole
-  doc.setFillColor(...cream);
-  doc.circle(pieX, pieY, pieR * 0.55, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(...brown);
-  doc.text(npsMedia.toFixed(1), pieX, pieY + 3, { align: 'center' });
-
-  // Legend
-  let legY = pieY + pieR + 6;
-  pieData.forEach(seg => {
-    doc.setFillColor(...seg.color);
-    doc.rect(pieX - 18, legY - 3, 6, 4, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(...textMuted);
-    doc.text(seg.label, pieX - 10, legY);
-    legY += 6;
-  });
-
-  // ---- MELHORIAS SECTION ----
-  doc.setDrawColor(...gold);
-  doc.setLineWidth(0.3);
-  doc.line(mx, 124, W - 8, 124);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...textMuted);
-  doc.text('PRINCIPAIS PONTOS DE MELHORIA', mx, 131);
-
-  const melhoriasTemas = [
-    { tema: '⏱ Tempo & Duração', desc: 'Ampliar carga horária; iniciar mais cedo; distribuir conteúdo em mais dias.' },
-    { tema: '📋 Material Didático', desc: 'Mais espaço para anotações; verificar completude das apostilas.' },
-    { tema: '🏨 Estrutura & Logística', desc: 'Melhorar infraestrutura das refeições; incluir mais pausas.' },
-    { tema: '📚 Conteúdo & Metodologia', desc: 'Antecipar PDI para o início; reposicionar PDCA para manhã do 2° dia.' },
-  ];
-
-  let mCol = 0;
-  melhoriasTemas.forEach((m, i) => {
-    const colX = mx + mCol * (mw / 2 + 2);
-    const rowY = 136 + Math.floor(i / 2) * 24;
-    doc.setFillColor(white[0] || 253, white[1] || 250, white[2] || 245);
-    doc.roundedRect(colX, rowY, mw / 2 - 2, 20, 2, 2, 'F');
+  function header(title, subtitle) {
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...brown);
-    doc.text(m.tema, colX + 4, rowY + 7);
+    doc.setFontSize(11);
+    doc.setTextColor(...C.gold);
+    doc.text('ELIS FORMAIO', 14, 20);
+
     doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.muted);
+    doc.text('LIDERANÇA 12  |  DASHBOARD DE RESULTADOS', 14, 25);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(21);
+    doc.setTextColor(...C.brownDark);
+    doc.text(title, 14, 37);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...C.muted);
+    doc.text(subtitle, 14, 44);
+
+    doc.setDrawColor(...C.gold);
+    doc.setLineWidth(0.35);
+    doc.line(14, 49, W - 14, 49);
+  }
+
+  function footer(page) {
+    doc.setDrawColor(...C.border);
+    doc.setLineWidth(0.25);
+    doc.line(14, H - 15, W - 14, H - 15);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.muted);
+    doc.text('Relatório gerado em ' + new Date().toLocaleDateString('pt-BR') + ' · Documento interno', 14, H - 8);
+    doc.text('Página ' + page, W - 14, H - 8, { align: 'right' });
+  }
+
+  function sectionTitle(text, x, y) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...C.brown);
+    doc.text(text.toUpperCase(), x, y);
+  }
+
+  function card(x, y, w, h, opts = {}) {
+    doc.setFillColor(...(opts.fill || C.white));
+    doc.setDrawColor(...(opts.border || C.border));
+    doc.setLineWidth(0.25);
+    doc.roundedRect(x, y, w, h, 3, 3, 'FD');
+    if (opts.accent) {
+      doc.setFillColor(...opts.accent);
+      doc.roundedRect(x, y, w, 2.2, 3, 3, 'F');
+      doc.rect(x, y + 1.1, w, 1.5, 'F');
+    }
+  }
+
+  function kpiCard(x, y, w, label, value, sub, accent) {
+    card(x, y, w, 25, { accent });
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
-    doc.setTextColor(...textMuted);
-    const lines = doc.splitTextToSize(m.desc, mw / 2 - 10);
-    doc.text(lines, colX + 4, rowY + 13);
-    mCol = mCol === 0 ? 1 : 0;
+    doc.setTextColor(...C.muted);
+    doc.text(label.toUpperCase(), x + 5, y + 8);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(...C.brownDark);
+    doc.text(value, x + 5, y + 18);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.8);
+    doc.setTextColor(...C.muted);
+    doc.text(sub, x + 5, y + 22.5);
+  }
+
+  function metricBar(x, y, label, value, color, maxW = 155) {
+    const barH = 8;
+    const fillW = Math.max(2, (value / 10) * maxW);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.muted);
+    doc.text(label, x, y + 6);
+
+    doc.setFillColor(...C.cream2);
+    doc.roundedRect(x + 31, y, maxW, barH, 3, 3, 'F');
+
+    doc.setFillColor(...color);
+    doc.roundedRect(x + 31, y, fillW, barH, 3, 3, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.8);
+    doc.setTextColor(...C.brownDark);
+    doc.text(fmt(value), x + 31 + maxW + 7, y + 6.2);
+  }
+
+  function stackedBar(x, y, w, h, segments) {
+    let cx = x;
+    segments.forEach(seg => {
+      const sw = total ? (seg.count / total) * w : 0;
+      if (sw <= 0) return;
+      doc.setFillColor(...seg.color);
+      doc.rect(cx, y, sw, h, 'F');
+      cx += sw;
+    });
+    doc.setDrawColor(...C.border);
+    doc.setLineWidth(0.25);
+    doc.roundedRect(x, y, w, h, 2.5, 2.5, 'S');
+  }
+
+  function courseCounts() {
+    const counts = {};
+    allData.forEach(d => {
+      if (!d.cursos) return;
+      d.cursos.split(',').forEach(c => {
+        const k = safe(c);
+        if (k) counts[k] = (counts[k] || 0) + 1;
+      });
+    });
+    return Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  }
+
+  function getMelhoriasResumo() {
+    const negativas = ['nada', 'nenhum', 'zero', 'tudo bom', 'maravilhoso', 'excelente', 'continuem', 'continuen', 'muito bom', 'está tudo', 'esta tudo', 'trouxe clareza'];
+    const sugestoes = allData
+      .map(d => safe(d.melhorias))
+      .filter(m => {
+        if (!m || m.length < 10) return false;
+        const lc = m.toLowerCase();
+        return !negativas.some(n => lc.includes(n));
+      });
+
+    const temas = [
+      { nome: 'Tempo e Duração', keys: ['tempo', 'horas', 'dias', 'cedo', 'corrido', 'carga horária'], acao: 'Reorganizar a carga horária, iniciar mais cedo e distribuir temas densos com mais respiro.' },
+      { nome: 'Material Didático', keys: ['material', 'apostila', 'espaço', 'pagina', 'página', 'organograma'], acao: 'Revisar apostilas antes do evento e ampliar espaços para anotações dos participantes.' },
+      { nome: 'Estrutura e Logística', keys: ['refeição', 'aliment', 'prato', 'pausa', 'pausas', 'pé', 'mesa'], acao: 'Melhorar apoio nas refeições e inserir pausas estratégicas durante a imersão.' },
+      { nome: 'Conteúdo e Metodologia', keys: ['pdi', 'pdca', 'dinâmica', 'dinamica', 'constelação', 'constelacao', 'áreas', 'areas'], acao: 'Antecipar PDI, reposicionar PDCA e ampliar dinâmicas práticas.' }
+    ].map(t => ({ ...t, qtd: 0, exemplos: [] }));
+
+    sugestoes.forEach(s => {
+      const lc = s.toLowerCase();
+      const tema = temas.find(t => t.keys.some(k => lc.includes(k))) || temas[3];
+      tema.qtd += 1;
+      if (tema.exemplos.length < 2) tema.exemplos.push(s);
+    });
+
+    return temas.filter(t => t.qtd > 0).sort((a,b) => b.qtd - a.qtd);
+  }
+
+  // PAGE 1
+  pageBg();
+  header('Resultado da Pesquisa de Satisfação', 'Imersão de Liderança Humanizada e Positiva — Serra Gaúcha, maio de 2026');
+
+  const cardW = (W - 28 - 18) / 4;
+  kpiCard(14, 57, cardW, 'Respondentes', String(total), 'participantes avaliaram', C.gold);
+  kpiCard(14 + cardW + 6, 57, cardW, 'NPS médio', fmt(npsMedia) + '/10', 'probabilidade de recomendar', C.green);
+  kpiCard(14 + (cardW + 6) * 2, 57, cardW, 'Notas 10', pct(nps10) + '%', nps10 + ' promotores máximos', C.brown);
+  kpiCard(14 + (cardW + 6) * 3, 57, cardW, 'Satisfação geral', fmt(satGeral) + '/10', 'média de todos os critérios', C.goldLight);
+
+  sectionTitle('Avaliações por critério', 14, 96);
+  const metrics = [
+    ['NPS', npsMedia, C.gold],
+    ['Atendimento', mediaAt, C.green],
+    ['Alimentação', mediaAl, C.brownLight],
+    ['Material', mediaMat, C.greenLight],
+    ['Conteúdo', mediaCont, C.brownDark]
+  ];
+  metrics.forEach((m, i) => metricBar(14, 104 + i * 13.5, m[0], m[1], m[2], 155));
+
+  sectionTitle('Distribuição NPS', 214, 96);
+  card(207, 101, 76, 66);
+  stackedBar(216, 114, 58, 8, [
+    { count: nps10, color: C.green },
+    { count: nps9, color: C.gold },
+    { count: npsOther, color: C.border }
+  ]);
+
+  const dist = [
+    ['Nota 10', nps10, pct(nps10) + '%', C.green],
+    ['Nota 9', nps9, pct(nps9) + '%', C.gold],
+    ['Outras', npsOther, pct(npsOther) + '%', C.border]
+  ];
+
+  dist.forEach((d, i) => {
+    const y = 134 + i * 10;
+    doc.setFillColor(...d[3]);
+    doc.roundedRect(217, y - 4, 4, 4, 1, 1, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.muted);
+    doc.text(d[0], 224, y);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...C.brownDark);
+    doc.text(String(d[1]), 258, y, { align: 'right' });
+    doc.setTextColor(...C.muted);
+    doc.text(d[2], 274, y, { align: 'right' });
   });
 
-  // Footer
-  doc.setFillColor(...brown);
-  doc.rect(0, H - 10, W, 10, 'F');
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(200, 151, 58);
-  doc.text('Elis Formaio — Liderança 12 · Dashboard de Resultados · Confidencial', W / 2, H - 4, { align: 'center' });
+  sectionTitle('Principais pontos de melhoria', 14, 180);
+  const melhorias = getMelhoriasResumo().slice(0, 4);
+  const melhoriaW = (W - 28 - 12) / 4;
+  melhorias.forEach((m, i) => {
+    const x = 14 + i * (melhoriaW + 4);
+    const y = 186;
+    card(x, y, melhoriaW, 16, { fill: C.white, accent: i % 2 === 0 ? C.gold : C.green });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(...C.brownDark);
+    doc.text(safe(m.nome), x + 4, y + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.6);
+    doc.setTextColor(...C.muted);
+    const short = doc.splitTextToSize(safe(m.acao), melhoriaW - 8).slice(0, 2);
+    doc.text(short, x + 4, y + 12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...C.gold);
+    doc.text(String(m.qtd), x + melhoriaW - 5, y + 7, { align: 'right' });
+  });
 
-  doc.save('ElisFormaio_Lideranca12_Resultados.pdf');
-  showToast('✓ PDF exportado com sucesso!');
+  footer(1);
+
+  // PAGE 2
+  doc.addPage('a4', 'landscape');
+  pageBg();
+  header('Leituras Estratégicas da Pesquisa', 'Interesses, percepções marcantes e oportunidades práticas para a próxima edição');
+
+  sectionTitle('Interesse em próximos cursos', 14, 60);
+  const cursos = courseCounts();
+  const maxCurso = cursos[0]?.[1] || 1;
+  cursos.forEach(([name, count], i) => {
+    const y = 69 + i * 10;
+    const fillW = (count / maxCurso) * 90;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.6);
+    doc.setTextColor(...C.muted);
+    doc.text(safe(name).slice(0, 48), 14, y);
+    doc.setFillColor(...C.cream2);
+    doc.roundedRect(95, y - 5, 90, 5, 2, 2, 'F');
+    doc.setFillColor(...C.brown);
+    doc.roundedRect(95, y - 5, fillW, 5, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...C.brownDark);
+    doc.text(String(count), 190, y - 1, { align: 'right' });
+  });
+
+  sectionTitle('O que mais marcou os participantes', 207, 60);
+  const destaques = allData
+    .map(d => safe(d.marcou))
+    .filter(m => m && m.length > 35)
+    .slice(0, 5);
+
+  destaques.forEach((d, i) => {
+    const y = 67 + i * 22;
+    card(207, y, 76, 17, { fill: C.white });
+    doc.setFillColor(...C.gold);
+    doc.rect(207, y, 1.8, 17, 'F');
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(6.7);
+    doc.setTextColor(...C.muted);
+    const lines = doc.splitTextToSize('“' + d + '”', 69).slice(0, 3);
+    doc.text(lines, 212, y + 6);
+  });
+
+  sectionTitle('Plano de ação sugerido', 14, 160);
+  const acoes = [
+    'Reposicionar PDI e PDCA para momentos de maior energia e atenção da turma.',
+    'Revisar apostilas, páginas de apoio e espaços para anotações antes da impressão.',
+    'Avaliar ampliação de carga horária ou formato com mais encontros para aprofundamento.',
+    'Manter como força central: autoconhecimento, aplicabilidade prática e troca entre líderes.'
+  ];
+
+  acoes.forEach((acao, i) => {
+    const x = 14 + (i % 2) * 93;
+    const y = 168 + Math.floor(i / 2) * 16;
+    card(x, y, 86, 12, { fill: C.white });
+    doc.setFillColor(...(i === 3 ? C.green : C.gold));
+    doc.circle(x + 5, y + 6, 1.4, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.8);
+    doc.setTextColor(...C.muted);
+    doc.text(doc.splitTextToSize(acao, 74).slice(0, 2), x + 10, y + 5);
+  });
+
+  footer(2);
+
+  doc.save('Elis_Formaio_Lideranca12_Relatorio_Executivo.pdf');
+  showToast('✓ PDF exportado com layout melhorado!');
 }
+
 
 // ─── HELPERS ─────────────────────────────────────────────────────────
 function avg(arr) {
