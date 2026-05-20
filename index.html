@@ -3,1063 +3,1813 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+<title>Elis Formaio — Liderança 12 · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root{
---brown-dark:#5c3d2e;
---brown:#7a5230;
---brown-mid:#a0714f;
---brown-light:#c9a882;
---cream:#faf6f1;
---cream2:#f2ebe0;
---cream3:#e8ddd0;
---text:#2c1f14;
---text-mid:#5c3d2e;
---text-muted:#9e8272;
---green:#4a7c59;
---green-bg:rgba(74,124,89,.12);
---orange:#c0622a;
---orange-bg:rgba(192,98,42,.12);
---border:rgba(122,82,48,.15);
---border2:rgba(122,82,48,.3);
---shadow:0 2px 16px rgba(92,61,46,.1);
---shadow2:0 4px 32px rgba(92,61,46,.18);
-}
-
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
--webkit-tap-highlight-color:transparent;
-}
-
-html,body{
-min-height:100vh;
-background:var(--cream);
-color:var(--text);
-font-family:'Inter',sans-serif;
-}
-
-body{
-display:flex;
-align-items:center;
-justify-content:center;
-padding:1.5rem 1rem;
-position:relative;
-}
-
-body::before{
-content:'';
-position:fixed;
-inset:0;
-background:linear-gradient(135deg,#faf6f1 0%,#f0e8dc 100%);
-z-index:0;
-}
-
-.wrap{
-width:100%;
-max-width:460px;
-position:relative;
-z-index:1;
-}
-
-.header{
-text-align:center;
-margin-bottom:1.75rem;
-animation:fadeDown .5s ease both;
-}
-
-.logo-area{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:15px;
-margin-bottom:1.5rem;
-}
-
-.logo-img-grande {
-height:auto;
-width:180px;
-max-width:85%;
-object-fit:contain;
-}
-
-.logo-text{
-text-align:center;
-}
-
-.logo-name{
-font-family:'Playfair Display',serif;
-font-size:18px;
-color:var(--brown-dark);
-line-height:1.2;
-letter-spacing:1px;
-}
-
-.logo-sub{
-font-size:11px;
-color:var(--text-muted);
-text-transform:uppercase;
-letter-spacing:2px;
-margin-top:4px;
-}
-
-.base-atual{
-display:inline-block;
-margin-top:10px;
-padding:6px 12px;
-background:var(--cream2);
-border:1px solid var(--border);
-border-radius:999px;
-font-size:11px;
-font-weight:600;
-color:var(--brown);
-letter-spacing:.4px;
-text-transform:uppercase;
-}
-
-.time-block{
-margin-bottom:.5rem;
-}
-
-.clock{
-font-family:'Playfair Display',serif;
-font-size:clamp(3rem,15vw,4.2rem);
-color:var(--brown-dark);
-letter-spacing:-2px;
-line-height:1;
-}
-
-.dateline{
-font-size:12px;
-color:var(--text-muted);
-text-transform:capitalize;
-letter-spacing:.3px;
-margin-top:4px;
-}
-
-.card{
-background:#fff;
-border:1px solid var(--border);
-border-radius:16px;
-overflow:hidden;
-box-shadow:var(--shadow2);
-animation:fadeUp .5s ease both .1s;
-}
-
-.card-top{
-background:var(--brown-dark);
-padding:1rem 1.5rem;
-display:flex;
-align-items:center;
-justify-content:space-between;
-}
-
-.card-top-title{
-font-family:'Playfair Display',serif;
-font-size:15px;
-color:#fff;
-letter-spacing:.3px;
-}
-
-.card-top-sub{
-font-size:11px;
-color:var(--brown-light);
-opacity:.9;
-}
-
-.prog-wrap{
-padding:.875rem 1.5rem;
-background:var(--cream2);
-border-bottom:1px solid var(--border);
-}
-
-.prog-labels{
-display:flex;
-justify-content:space-between;
-margin-bottom:6px;
-}
-
-.prog-label{
-font-size:10px;
-font-weight:600;
-text-transform:uppercase;
-letter-spacing:.6px;
-color:var(--text-muted);
-transition:color .3s;
-}
-
-.prog-label.active{
-color:var(--brown);
-}
-
-.prog-bar{
-display:flex;
-gap:4px;
-}
-
-.prog-seg{
-height:3px;
-flex:1;
-border-radius:10px;
-background:var(--cream3);
-transition:background .4s;
-}
-
-.prog-seg.done{
-background:var(--brown-light);
-}
-
-.prog-seg.active{
-background:var(--brown);
-}
-
-.ch{
-padding:1.25rem 1.5rem .5rem;
-}
-
-.cb{
-padding:.5rem 1.5rem 1.5rem;
-}
-
-.st{
-font-family:'Playfair Display',serif;
-font-size:20px;
-color:var(--brown-dark);
-line-height:1.2;
-margin-bottom:4px;
-}
-
-.ss{
-font-size:13px;
-color:var(--text-muted);
-margin-bottom:1.25rem;
-line-height:1.5;
-}
-
-.nome-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px;
-margin-bottom:1rem;
-}
-
-.nome-btn{
-padding:12px 10px;
-border:1.5px solid var(--border2);
-border-radius:10px;
-background:#fff;
-color:var(--text-mid);
-font-family:'Inter',sans-serif;
-font-size:13px;
-font-weight:500;
-cursor:pointer;
-display:flex;
-align-items:center;
-gap:8px;
-transition:all .2s;
-position:relative;
-}
-
-.nome-btn:active{
-transform:scale(.97);
-}
-
-.nome-btn .avatar{
-width:28px;
-height:28px;
-border-radius:50%;
-background:var(--cream2);
-border:1.5px solid var(--border2);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:11px;
-font-weight:700;
-color:var(--brown);
-flex-shrink:0;
-}
-
-.nome-btn .nbname{
-font-size:12px;
-font-weight:600;
-color:var(--text);
-letter-spacing:.3px;
-}
-
-.nome-btn.sel{
-border-color:var(--brown);
-background:linear-gradient(135deg,#fdf6ee,#f5e8d4);
-}
-
-.nome-btn.sel .avatar{
-background:var(--brown-dark);
-border-color:var(--brown-dark);
-color:#fff;
-}
-
-.nome-btn-full{
-grid-column:1/-1;
-}
-
-.chk-nome{
-position:absolute;
-top:6px;
-right:8px;
-width:16px;
-height:16px;
-border-radius:50%;
-background:var(--brown);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:9px;
-color:#fff;
-opacity:0;
-}
-
-.nome-btn.sel .chk-nome{
-opacity:1;
-}
-
-.tg{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-bottom:1rem;
-}
-
-.tb{
-padding:1.1rem 1rem;
-border:1.5px solid var(--border2);
-border-radius:12px;
-background:#fff;
-color:var(--text-muted);
-font-family:'Inter',sans-serif;
-font-size:13px;
-font-weight:600;
-cursor:pointer;
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:8px;
-transition:all .2s;
-position:relative;
-}
-
-.tb.e.sel{
-border-color:var(--green);
-background:var(--green-bg);
-color:var(--green);
-}
-
-.tb.s.sel{
-border-color:var(--orange);
-background:var(--orange-bg);
-color:var(--orange);
-}
-
-.chk{
-position:absolute;
-top:7px;
-right:8px;
-width:16px;
-height:16px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:9px;
-opacity:0;
-}
-
-.tb.e.sel .chk{
-opacity:1;
-background:var(--green);
-color:#fff;
-}
-
-.tb.s.sel .chk{
-opacity:1;
-background:var(--orange);
-color:#fff;
-}
-
-textarea{
-width:100%;
-padding:12px 14px;
-background:var(--cream2);
-border:1.5px solid var(--border2);
-border-radius:10px;
-font-size:14px;
-font-family:'Inter',sans-serif;
-color:var(--text);
-outline:none;
-resize:none;
-min-height:90px;
-margin-bottom:1rem;
-}
-
-.btn{
-width:100%;
-padding:14px;
-background:var(--brown-dark);
-border:none;
-border-radius:10px;
-font-family:'Inter',sans-serif;
-font-size:14px;
-font-weight:600;
-color:#fff;
-cursor:pointer;
-transition:all .2s;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:8px;
-}
-
-.btn:hover{
-background:var(--brown);
-transform:translateY(-1px);
-box-shadow:0 4px 12px rgba(92,61,46,.3);
-}
-
-.btn:disabled{
-opacity:.5;
-cursor:not-allowed;
-}
-
-.btn-g{
-display:block;
-width:100%;
-margin-top:8px;
-padding:11px;
-background:transparent;
-border:1.5px solid var(--border2);
-border-radius:10px;
-font-size:13px;
-color:var(--text-muted);
-cursor:pointer;
-}
-
-.btn-o{
-width:100%;
-padding:12px;
-background:transparent;
-border:1.5px solid var(--border2);
-border-radius:10px;
-font-size:13px;
-font-weight:600;
-color:var(--brown);
-cursor:pointer;
-margin-top:1rem;
-}
-
-.ov{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(250,246,241,.92);
-z-index:100;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:16px;
-}
-
-.ov.show{
-display:flex;
-}
-
-.sp{
-width:36px;
-height:36px;
-border:2.5px solid var(--cream3);
-border-top-color:var(--brown);
-border-radius:50%;
-animation:spin .7s linear infinite;
-}
-
-.sr{
-width:64px;
-height:64px;
-border-radius:50%;
-border:2px solid var(--green);
-display:flex;
-align-items:center;
-justify-content:center;
-margin:0 auto 1.25rem;
-}
-
-.sr.saida{
-border-color:var(--orange);
-}
-
-.t2{
-font-family:'Playfair Display',serif;
-font-size:22px;
-color:var(--brown-dark);
-margin-bottom:6px;
-}
-
-.rg{
-background:var(--cream2);
-border:1px solid var(--border);
-border-radius:12px;
-overflow:hidden;
-text-align:left;
-margin-bottom:1.5rem;
-}
-
-.rr{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:11px 16px;
-border-bottom:1px solid var(--border);
-gap:12px;
-}
-
-.rk{
-font-size:12px;
-color:var(--text-muted);
-}
-
-.rv{
-font-size:13px;
-font-weight:600;
-color:var(--text);
-text-align:right;
-}
-
-.pill{
-padding:3px 11px;
-border-radius:20px;
-font-size:11px;
-font-weight:700;
-}
-
-.pill.e{
-background:var(--green-bg);
-color:var(--green);
-}
-
-.pill.s{
-background:var(--orange-bg);
-color:var(--orange);
-}
-
-.err{
-font-size:11px;
-color:#c0622a;
-margin-top:-6px;
-margin-bottom:10px;
-display:none;
-}
-
-.err.show{
-display:block;
-}
-
-.card-footer{
-background:var(--cream2);
-border-top:1px solid var(--border);
-padding:.75rem 1.5rem;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:10px;
-}
-
-.footer-txt{
-font-size:10px;
-color:var(--text-muted);
-text-transform:uppercase;
-letter-spacing:.6px;
-}
-
-@keyframes fadeDown{
-from{opacity:0;transform:translateY(-16px)}
-to{opacity:1;transform:translateY(0)}
-}
-
-@keyframes fadeUp{
-from{opacity:0;transform:translateY(20px)}
-to{opacity:1;transform:translateY(0)}
-}
-
-@keyframes spin{
-to{transform:rotate(360deg)}
-}
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE6D6;
+    --brown: #6B4A2A;
+    --brown-light: #8B6340;
+    --brown-dark: #3D2510;
+    --gold: #C8973A;
+    --gold-light: #E4B96A;
+    --green: #4A7C59;
+    --green-light: #6BA082;
+    --text: #2C1A0E;
+    --text-muted: #7A5C42;
+    --white: #FDFAF5;
+    --border: #D4C4A8;
+    --shadow: rgba(60, 30, 10, 0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--brown-dark);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    padding: 0 0 24px;
+  }
+
+  .sidebar-logo {
+    padding: 32px 24px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-logo .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+  }
+
+  .sidebar-logo .event-tag {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.55);
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+  .nav-item.active { background: var(--gold); color: var(--brown-dark); font-weight: 600; }
+
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 16px 24px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-footer .label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 4px; }
+  .sidebar-footer .value { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.5); }
+
+  /* MAIN */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .sheet-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .sheet-input-group label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .sheet-input {
+    flex: 1;
+    max-width: 480px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .sheet-input:focus { border-color: var(--gold); }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-primary { background: var(--brown); color: white; }
+  .btn-primary:hover { background: var(--brown-light); }
+  .btn-gold { background: var(--gold); color: var(--brown-dark); }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+  .btn-outline:hover { border-color: var(--brown); color: var(--brown); }
+
+  .topbar-right { display: flex; gap: 8px; margin-left: auto; }
+
+  /* CONTENT */
+  .content {
+    padding: 32px;
+    flex: 1;
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-bottom: 28px;
+  }
+
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--brown-dark);
+    line-height: 1.2;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .last-sync {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.brown::before { background: var(--brown); }
+  .kpi-card.gold::before { background: var(--gold); }
+
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--brown-dark);
+    line-height: 1;
+  }
+
+  .kpi-value span {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+  }
+
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* CHARTS GRID */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .chart-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .chart-card.full { grid-column: 1 / -1; }
+
+  .chart-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .chart-wrap {
+    position: relative;
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chart-wrap.tall { height: 320px; }
+  .chart-wrap.bar { height: 240px; display: block; }
+
+  /* MELHORIAS */
+  .melhorias-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .melhoria-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .melhoria-card.full { grid-column: 1 / -1; }
+
+  .melhoria-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .tag-orange { background: #FEF3E2; color: #C07A1A; }
+  .tag-green { background: #E8F4EC; color: #2E6B42; }
+  .tag-blue { background: #E8EEF8; color: #2E4C8E; }
+  .tag-red { background: #FDECEA; color: #8E2E2E; }
+
+  .melhoria-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--brown-dark);
+    margin-bottom: 12px;
+  }
+
+  .melhoria-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--cream-dark);
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .melhoria-item:last-child { border-bottom: none; }
+
+  .melhoria-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .melhoria-count {
+    font-size: 10px;
+    background: var(--cream-dark);
+    color: var(--text-muted);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-left: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* DESTAQUES */
+  .destaque-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .destaque-item {
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    border-left: 3px solid var(--gold);
+    font-style: italic;
+  }
+
+  /* CURSOS INTERESSE */
+  .curso-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .curso-bar-label {
+    font-size: 12px;
+    color: var(--text);
+    min-width: 240px;
+    flex-shrink: 0;
+  }
+
+  .curso-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--cream-dark);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .curso-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--brown);
+    transition: width 1s ease;
+  }
+
+  .curso-bar-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--brown);
+    min-width: 20px;
+    text-align: right;
+  }
+
+  /* LOADING */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    transition: opacity 0.4s;
+  }
+
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .loading-spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--brown);
+  }
+
+  /* SECTION HIDDEN */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* NPS DONUT CENTER */
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .donut-center .big {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--brown-dark);
+    line-height: 1;
+  }
+
+  .donut-center .small {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* RESPONDENTES TABLE */
+  .respondentes-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .respondentes-table th {
+    background: var(--cream-dark);
+    padding: 9px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .respondentes-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--cream-dark);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .respondentes-table tr:last-child td { border-bottom: none; }
+  .respondentes-table tr:hover td { background: var(--cream); }
+
+  .score-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .score-10 { background: #E8F4EC; color: #2E6B42; }
+  .score-9 { background: #EDF6E8; color: #4A7A2E; }
+  .score-low { background: #FEF3E2; color: #C07A1A; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-state svg { width: 48px; height: 48px; opacity: 0.3; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--brown-dark);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 9999;
+    transform: translateY(80px);
+    transition: transform 0.3s;
+    pointer-events: none;
+  }
+
+  .toast.show { transform: translateY(0); }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+    .melhorias-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
-
 <body>
 
-<div class="ov" id="ov">
-<div class="sp"></div>
-<div class="lt">Registrando ponto…</div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Carregando dados...</div>
 </div>
 
-<div class="wrap">
+<div class="toast" id="toast"></div>
 
-<div class="header">
-<div class="logo-area">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Elis Formaio</div>
+    <div class="event-tag">Dashboard · Liderança 12</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" onclick="showSection('painel')" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Painel Geral
+    </a>
+    <a class="nav-item" onclick="showSection('graficos')" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Gráficos & Notas
+    </a>
+    <a class="nav-item" onclick="showSection('melhorias')" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Pontos de Melhoria
+    </a>
+    <a class="nav-item" onclick="showSection('respondentes')" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Respondentes
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="label">Responsável</div>
+    <div class="value">Elis Formaio</div>
+  </div>
+</aside>
 
-<img src="logo_nova.png" alt="Logo Ato de Honra" class="logo-img-grande">
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="sheet-input-group">
+      <label>Planilha</label>
+      <input type="text" class="sheet-input" id="sheetUrl" placeholder="Opcional: cole aqui o link da planilha Google Sheets para sincronizar..." value="">
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-primary" onclick="loadData()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Sincronizar
+      </button>
+      <button class="btn btn-gold" onclick="exportPDF()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Exportar PDF
+      </button>
+      <a class="btn btn-outline" id="sheetLink" href="https://docs.google.com/spreadsheets/d/1RGLf5KEbvfjGYuCGQGKypNOjvj2fDy9NeLlQarNT5sM/edit?usp=sharing" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver Planilha
+      </a>
+    </div>
+  </div>
 
-<div class="logo-text">
-<div class="logo-name">ATO DE HONRA</div>
-<div class="logo-sub">Registro de Ponto</div>
-<div class="base-atual" id="baseAtualTexto">Base: carregando...</div>
-</div>
+  <!-- CONTENT -->
+  <div class="content" id="dashboardContent">
 
-</div>
+    <!-- PAINEL GERAL -->
+    <div class="section active" id="section-painel">
+      <div class="page-header">
+        <h1>Painel Geral — Liderança 12</h1>
+        <p>Imersão de Liderança Humanizada e Positiva · Serra Gaúcha, maio 2026</p>
+        <div class="last-sync" id="lastSync">Aguardando sincronização...</div>
+      </div>
 
-<div class="time-block">
-<div class="clock" id="clk">00:00</div>
-<div class="dateline" id="dl"></div>
-</div>
-</div>
+      <div class="kpi-grid">
+        <div class="kpi-card gold">
+          <div class="kpi-label">Respondentes</div>
+          <div class="kpi-value" id="kpi-total">—</div>
+          <div class="kpi-sub">participantes avaliaram</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">NPS Médio</div>
+          <div class="kpi-value" id="kpi-nps">—<span>/10</span></div>
+          <div class="kpi-sub" id="kpi-nps-sub">recomendação</div>
+        </div>
+        <div class="kpi-card brown">
+          <div class="kpi-label">Notas 10 · NPS</div>
+          <div class="kpi-value" id="kpi-promotores">—<span>%</span></div>
+          <div class="kpi-sub">promotores do evento</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Satisfação Geral</div>
+          <div class="kpi-value" id="kpi-sat">—<span>/10</span></div>
+          <div class="kpi-sub">média de todas as notas</div>
+        </div>
+      </div>
 
-<div class="card">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Distribuição NPS — Recomendação</div>
+          <div class="chart-wrap" style="height:280px">
+            <canvas id="chartNPS"></canvas>
+            <div class="donut-center" id="donutCenter">
+              <div class="big" id="donutBig">—</div>
+              <div class="small">média</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Médias por Critério de Avaliação</div>
+          <div class="chart-wrap bar" style="height:280px">
+            <canvas id="chartCriterios"></canvas>
+          </div>
+        </div>
+      </div>
 
-<div class="card-top">
-<div>
-<div class="card-top-title">Registro de Ponto</div>
-<div class="card-top-sub" id="step-info">Passo 1 de 3</div>
-</div>
-<div style="font-size:11px;color:var(--brown-light);text-align:right" id="top-nome"></div>
-</div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Interesse em Outros Cursos</div>
+          <div id="cursosContainer"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Destaques do Evento — O que mais marcou</div>
+          <div class="destaque-list" id="destaqueList"></div>
+        </div>
+      </div>
+    </div>
 
-<div class="prog-wrap">
-<div class="prog-labels">
-<span class="prog-label active" id="pl1">Colaborador</span>
-<span class="prog-label" id="pl2">Tipo</span>
-<span class="prog-label" id="pl3">Observação</span>
-</div>
-<div class="prog-bar">
-<div class="prog-seg active" id="ps1"></div>
-<div class="prog-seg" id="ps2"></div>
-<div class="prog-seg" id="ps3"></div>
-</div>
-</div>
+    <!-- GRÁFICOS -->
+    <div class="section" id="section-graficos">
+      <div class="page-header">
+        <h1>Gráficos & Notas</h1>
+        <p>Análise detalhada das avaliações quantitativas</p>
+      </div>
 
-<div id="s1">
-<div class="ch">
-<div class="st">Quem é você?</div>
-<div class="ss">Selecione seu nome para registrar o ponto.</div>
-</div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Notas NPS — Distribuição Individual</div>
+          <div class="chart-wrap bar tall">
+            <canvas id="chartNPSBar"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Atendimento do Time Interno</div>
+          <div class="chart-wrap bar">
+            <canvas id="chartAtendimento"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Avaliação da Alimentação</div>
+          <div class="chart-wrap bar">
+            <canvas id="chartAlimentacao"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Avaliação do Material</div>
+          <div class="chart-wrap bar">
+            <canvas id="chartMaterial"></canvas>
+          </div>
+        </div>
+        <div class="chart-card full">
+          <div class="chart-title">Avaliação do Conteúdo</div>
+          <div class="chart-wrap bar" style="height:200px">
+            <canvas id="chartConteudo"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div class="cb">
-<div class="nome-grid">
+    <!-- MELHORIAS -->
+    <div class="section" id="section-melhorias">
+      <div class="page-header">
+        <h1>Pontos de Melhoria</h1>
+        <p>Análise qualitativa das sugestões dos participantes</p>
+      </div>
+      <div class="melhorias-grid" id="melhoriaGrid"></div>
+    </div>
 
-<button class="nome-btn" onclick="selNome('WINICIUS', this)">
-<div class="avatar">W</div>
-<span class="nbname">WINICIUS</span>
-<div class="chk-nome">✓</div>
-</button>
+    <!-- RESPONDENTES -->
+    <div class="section" id="section-respondentes">
+      <div class="page-header">
+        <h1>Respondentes</h1>
+        <p>Lista completa de participantes e suas avaliações</p>
+      </div>
+      <div class="chart-card">
+        <div style="overflow-x:auto">
+          <table class="respondentes-table" id="respondentesTable">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Data</th>
+                <th>NPS</th>
+                <th>Atendimento</th>
+                <th>Alimentação</th>
+                <th>Material</th>
+                <th>Conteúdo</th>
+                <th>Interesse em Cursos</th>
+              </tr>
+            </thead>
+            <tbody id="respondentesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-<button class="nome-btn" onclick="selNome('MORGANA', this)">
-<div class="avatar">M</div>
-<span class="nbname">MORGANA</span>
-<div class="chk-nome">✓</div>
-</button>
-
-<button class="nome-btn" onclick="selNome('JUCIELI', this)">
-<div class="avatar">J</div>
-<span class="nbname">JUCIELI</span>
-<div class="chk-nome">✓</div>
-</button>
-
-<button class="nome-btn" onclick="selNome('HENRIQUE', this)">
-<div class="avatar">H</div>
-<span class="nbname">HENRIQUE</span>
-<div class="chk-nome">✓</div>
-</button>
-
-<button class="nome-btn nome-btn-full" onclick="selNome('FABIANE', this)">
-<div class="avatar">F</div>
-<span class="nbname">FABIANE</span>
-<div class="chk-nome">✓</div>
-</button>
-
-<button class="nome-btn nome-btn-full" onclick="selNome('DANIELA', this)">
-<div class="avatar">D</div>
-<span class="nbname">DANIELA</span>
-<div class="chk-nome">✓</div>
-</button>
-
-</div>
-
-<div class="err" id="e1">Por favor, selecione seu nome.</div>
-<button class="btn" onclick="ir2()">Continuar →</button>
-</div>
-</div>
-
-<div id="s2" style="display:none">
-<div class="ch">
-<div class="st">Tipo de registro</div>
-<div class="ss">Você está chegando ou saindo?</div>
-</div>
-
-<div class="cb">
-<div class="tg">
-
-<button class="tb e" id="be" onclick="sel('Entrada')">
-<div class="chk">✓</div>
-<div class="ti">🟢</div>
-<span>Entrada</span>
-</button>
-
-<button class="tb s" id="bs" onclick="sel('Saída')">
-<div class="chk">✓</div>
-<div class="ti">🔴</div>
-<span>Saída</span>
-</button>
-
-</div>
-
-<div class="err" id="e2">Selecione o tipo de registro.</div>
-<button class="btn" onclick="ir3()">Continuar →</button>
-</div>
-</div>
-
-<div id="s3" style="display:none">
-<div class="ch">
-<div class="st">Observações <span class="opt">opcional</span></div>
-<div class="ss">Alguma informação adicional?</div>
-</div>
-
-<div class="cb">
-<textarea id="obs" placeholder="Ex: Chegando de viagem, home office…"></textarea>
-<button class="btn" id="btnReg" onclick="enviar(false)">✓ Registrar Ponto</button>
-<button class="btn-g" onclick="enviar(true)">Pular e registrar sem observação</button>
-</div>
-</div>
-
-<div id="s4" style="display:none">
-<div style="text-align:center;padding:2rem 1.5rem">
-
-<div class="sr" id="sr">
-<div style="font-size:28px">✓</div>
-</div>
-
-<div class="t2" id="rt"></div>
-
-<div class="rg">
-<div class="rr">
-<span class="rk">Base</span>
-<span class="rv" id="rbase"></span>
-</div>
-
-<div class="rr">
-<span class="rk">Colaborador</span>
-<span class="rv" id="rn"></span>
-</div>
-
-<div class="rr">
-<span class="rk">Tipo</span>
-<span class="rv" id="rti"></span>
-</div>
-
-<div class="rr">
-<span class="rk">Horário</span>
-<span class="rv" id="rh"></span>
-</div>
-
-<div class="rr">
-<span class="rk">Data</span>
-<span class="rv" id="rd"></span>
-</div>
-
-<div class="rr" id="ro" style="display:none">
-<span class="rk">Observação</span>
-<span class="rv" id="rob" style="font-weight:400;max-width:180px"></span>
-</div>
-</div>
-
-<button class="btn-o" onclick="novo()">+ Novo Registro</button>
-</div>
-</div>
-
-<div class="card-footer">
-<span class="footer-txt">Sistema de Ponto Digital</span>
-<span class="footer-txt" id="footerBase"></span>
-</div>
-
-</div>
-</div>
+  </div><!-- /content -->
+</div><!-- /main -->
 
 <script>
-/* ============================================================
-   CONFIGURAÇÃO DE BASES / PLANILHAS
-   ============================================================
+// ─── STATE ───────────────────────────────────────────────────────────
+let allData = [];
+let charts = {};
 
-   Como usar no link do site:
-
-   seusite.com.br/?base=grupo
-   seusite.com.br/?base=pabovi
-   seusite.com.br/?base=lideranca12
-
-   O HTML envia o nome da base para o Apps Script.
-   O Apps Script é quem decide em qual planilha gravar.
-
-*/
-
-const BASES = {
-  grupo: {
-    nome: "Grupo Elis Formaio"
-  },
-
-  pabovi: {
-    nome: "Pabovi S/A"
-  },
-
-  lideranca12: {
-    nome: "Liderança 12"
-  }
-};
-
-function getBaseAtual() {
-  const params = new URLSearchParams(window.location.search);
-  const base = params.get("base") || "grupo";
-
-  if (BASES[base]) {
-    return base;
-  }
-
-  return "grupo";
+// ─── NAVIGATION ──────────────────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
 }
 
-const BASE_ATUAL = getBaseAtual();
-const BASE_NOME = BASES[BASE_ATUAL].nome;
-
-/* ============================================================
-   URL DO APPS SCRIPT
-   ============================================================
-
-   Mantenha UMA URL só.
-   O Apps Script receberá o campo "base" e enviará para a planilha correta.
-
-*/
-
-const URL_API = "https://script.google.com/macros/s/AKfycbxE-1OlMFA_dsEY6FiletiDDaKWwrdad03TTeGI1wXCtPKGiRbNH6TX0nEFjRX63WJi/exec";
-
-/* ============================================================
-   RELÓGIO
-   ============================================================ */
-
-const DIAS = [
-  'domingo',
-  'segunda-feira',
-  'terça-feira',
-  'quarta-feira',
-  'quinta-feira',
-  'sexta-feira',
-  'sábado'
-];
-
-const MES = [
-  'jan',
-  'fev',
-  'mar',
-  'abr',
-  'mai',
-  'jun',
-  'jul',
-  'ago',
-  'set',
-  'out',
-  'nov',
-  'dez'
-];
-
-function tick() {
-  const n = new Date();
-
-  document.getElementById('clk').textContent =
-    String(n.getHours()).padStart(2, '0') + ':' +
-    String(n.getMinutes()).padStart(2, '0');
-
-  document.getElementById('dl').textContent =
-    DIAS[n.getDay()] + ', ' +
-    n.getDate() + ' de ' +
-    MES[n.getMonth()] + ' de ' +
-    n.getFullYear();
+// ─── LOAD EMBEDDED DATA ───────────────────────────────────────────────
+function loadEmbeddedData() {
+  showLoading(true);
+  allData = getEmbeddedData();
+  renderAll();
+  document.getElementById('lastSync').textContent = 'Dados embutidos no código — ' + new Date().toLocaleString('pt-BR');
+  showToast('✓ Dados embutidos carregados com sucesso!');
+  showLoading(false);
 }
 
-tick();
-setInterval(tick, 5000);
+// ─── LOAD DATA ───────────────────────────────────────────────────────
+async function loadData() {
+  showLoading(true);
+  let url = document.getElementById('sheetUrl').value.trim();
 
-/* ============================================================
-   ESTADO DO FORMULÁRIO
-   ============================================================ */
-
-let nome = '';
-let tipo = '';
-
-document.addEventListener("DOMContentLoaded", function() {
-  document.getElementById("baseAtualTexto").textContent = "Base: " + BASE_NOME;
-  document.getElementById("footerBase").textContent = BASE_NOME;
-});
-
-function setProgress(step) {
-  [1, 2, 3].forEach(i => {
-    document.getElementById('ps' + i).className =
-      'prog-seg' + (i < step ? ' done' : i === step ? ' active' : '');
-
-    document.getElementById('pl' + i).className =
-      'prog-label' + (i === step ? ' active' : '');
-  });
-
-  document.getElementById('step-info').textContent = 'Passo ' + step + ' de 3';
-}
-
-function show(id) {
-  ['s1', 's2', 's3', 's4'].forEach(s => {
-    document.getElementById(s).style.display = s === id ? 'block' : 'none';
-  });
-
-  if (id === 's4') {
-    document.querySelector('.prog-wrap').style.display = 'none';
-    document.querySelector('.card-top').style.display = 'none';
-  } else {
-    document.querySelector('.prog-wrap').style.display = 'block';
-    document.querySelector('.card-top').style.display = 'flex';
-
-    setProgress({
-      s1: 1,
-      s2: 2,
-      s3: 3
-    }[id]);
-  }
-}
-
-function selNome(n, elemento) {
-  nome = n;
-
-  document.querySelectorAll('.nome-btn').forEach(b => {
-    b.classList.remove('sel');
-  });
-
-  elemento.classList.add('sel');
-
-  document.getElementById('e1').classList.remove('show');
-  document.getElementById('top-nome').textContent = n;
-}
-
-function ir2() {
-  if (!nome) {
-    document.getElementById('e1').classList.add('show');
+  if (!url) {
+    allData = getEmbeddedData();
+    renderAll();
+    document.getElementById('lastSync').textContent = 'Dados embutidos no código — ' + new Date().toLocaleString('pt-BR');
+    showToast('✓ Dados embutidos carregados');
+    showLoading(false);
     return;
   }
 
-  show('s2');
-}
-
-function sel(t) {
-  tipo = t;
-
-  document.getElementById('be').classList.toggle('sel', t === 'Entrada');
-  document.getElementById('bs').classList.toggle('sel', t === 'Saída');
-
-  document.getElementById('e2').classList.remove('show');
-}
-
-function ir3() {
-  if (!tipo) {
-    document.getElementById('e2').classList.add('show');
-    return;
+  // Convert normal share link to CSV export URL
+  if (url.includes('/edit') || url.includes('/view') || (!url.includes('export'))) {
+    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (match) {
+      url = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv&gid=0`;
+    }
   }
 
-  show('s3');
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Falha ao carregar planilha');
+    const text = await resp.text();
+    allData = parseCSV(text);
+    renderAll();
+    document.getElementById('lastSync').textContent = 'Dados da planilha sincronizados em: ' + new Date().toLocaleString('pt-BR');
+    showToast('✓ Dados sincronizados com sucesso!');
+  } catch(e) {
+    // Fallback to embedded data
+    allData = getEmbeddedData();
+    renderAll();
+    document.getElementById('lastSync').textContent = 'Dados embutidos (offline) — ' + new Date().toLocaleString('pt-BR');
+    showToast('⚠ Usando dados embutidos (planilha inacessível)');
+  }
+  showLoading(false);
 }
 
-/* ============================================================
-   ENVIO PARA APPS SCRIPT
-   ============================================================ */
+// ─── PARSE CSV ───────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  // skip header
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = splitCSVLine(lines[i]);
+    if (cols.length < 6) continue;
+    const nps = parseInt(cols[1]);
+    if (isNaN(nps)) continue;
+    rows.push({
+      timestamp: cols[0] || '',
+      nps: nps,
+      motivo: cols[2] || '',
+      atendimento: parseInt(cols[3]) || 0,
+      alimentacao: parseInt(cols[4]) || 0,
+      material: parseInt(cols[5]) || 0,
+      conteudo: parseInt(cols[6]) || 0,
+      melhorias: cols[7] || '',
+      marcou: cols[8] || '',
+      cursos: cols[9] || '',
+      nome: cols[10] || 'Anônimo'
+    });
+  }
+  return rows;
+}
 
-function enviar(pular) {
-  const obs = pular ? '' : document.getElementById('obs').value.trim();
+function splitCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') {
+      inQuotes = !inQuotes;
+    } else if (line[i] === '\t' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else if (line[i] === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += line[i];
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
 
-  const n = new Date();
-  const pad = x => String(x).padStart(2, '0');
+// ─── EMBEDDED DATA ───────────────────────────────────────────────────
+function getEmbeddedData() {
+  return [
+    {
+        "timestamp": "17/05/2026 18:57:21",
+        "nps": 10,
+        "motivo": "Por toda a excelência de sempre na entrega do conteúdo e na estrutura física.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "A princípio dessa vez nenhum apontamento.",
+        "marcou": "A importância de cada vez mais me liderar para assim liderar as pessoas.",
+        "cursos": "",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:57:58",
+        "nps": 10,
+        "motivo": "Pelo conteúdo abordado e conhecimento da Elis",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 9,
+        "melhorias": "Acredito que seria interessante abordar o assunto do PDI, no início pois é um assunto muito importante.",
+        "marcou": "A troca de experiências com pessoas mais maduras.",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:58:05",
+        "nps": 10,
+        "motivo": "Foi a entrega que comprei no curso",
+        "atendimento": 9,
+        "alimentacao": 10,
+        "material": 9,
+        "conteudo": 10,
+        "melhorias": "Continuem assim",
+        "marcou": "Comprometimento para o novo, muita conexão e consciência.",
+        "cursos": "Imersão para Casais",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:58:45",
+        "nps": 10,
+        "motivo": "Imersão muito completa.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "De momento nada",
+        "marcou": "Conexões e profundidade com as pessoas",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:58:57",
+        "nps": 10,
+        "motivo": "A proposta é totalmente diferente dos cursos convencionais, olhando para o autoconhecimento na prática.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Mais dinamicas em conjunto, percebi que super se conecta e a troca é fantástica.",
+        "marcou": "Troca de experiência",
+        "cursos": "Formação de Pedagogia Sistêmica",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:01",
+        "nps": 10,
+        "motivo": "O conteúdo é revelador e importante para a Gestão",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "O tempo é pouco para aprofundar os temas",
+        "marcou": "Integração",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:05",
+        "nps": 9,
+        "motivo": "Uma imersão que transforma a forma de um líder olhar para seus colaboradores nao como máquinas mas sim como seres humanos.",
+        "atendimento": 10,
+        "alimentacao": 8,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Um tempo a mais de pé (pausas)",
+        "marcou": "Conhecimento e auto conhecimento",
+        "cursos": "Imersão para Casais",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:18",
+        "nps": 10,
+        "motivo": "O curso é transformar",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "O curso é maravilhoso, bastante conteúdo para a carga horária",
+        "marcou": "Que a mudança na forma de liderar não é uma possibilidade é uma necessidade que não pode ser adiada",
+        "cursos": "Imersão para Casais",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:36",
+        "nps": 9,
+        "motivo": "Pois todo o conteúdo faz sentido!",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 8,
+        "conteudo": 10,
+        "melhorias": "Na minha apostila teve uma página que não tinha, vocês devem ter verificado mas se passou sem querer! Mas não me atrapalhou",
+        "marcou": "Marcou que tive mais conhecimento descobri que sou mais forte do que penso",
+        "cursos": "Imersão para Casais",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:47",
+        "nps": 10,
+        "motivo": "Porque eu amei esse momento com a Elis. ♡",
+        "atendimento": 10,
+        "alimentacao": 8,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Penso que ao servir as refeições,  podiam ter pratos e mesas. Achei um pouco desconfortável,  quando comia a salada as vezes caia no chão.",
+        "marcou": "As técnicas aprendidas, pude olhar pra dentro, identificar pontos q falho e como posso estar atuando de forma diferente e ser mais efetiva na minha liderança",
+        "cursos": "Atendimento Terapêutico",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:50",
+        "nps": 10,
+        "motivo": "Pelo nível de aprendizado que eu adquiri durante a imersão",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 9,
+        "melhorias": "Talvez incluindo outras áreas empresariais, como empresas agropecuárias, com temas bem específicos da área",
+        "marcou": "O grau de autoconhecimento que eu adquiri para continuar me trabalhando como pessoa",
+        "cursos": "Encontro Majestoso - 7˚ Edição",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:50",
+        "nps": 10,
+        "motivo": "Porque preencheu todas as minhas expectativas",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Supriu todas as minhas necessidades neste momento",
+        "marcou": "A troca de conhecimento de todas as partes",
+        "cursos": "Encontro Majestoso - 7˚ Edição",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 18:59:53",
+        "nps": 10,
+        "motivo": "Conteúdo e organização impecáveis! E muito aplicáveis também.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "De repente  iniciar 30 min.. 1h mais cedo para ter mais tempo de aula.",
+        "marcou": "Profundidade dos exercícios, interação de trocas da turma, e conhecimento.",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:00:14",
+        "nps": 10,
+        "motivo": "Porque o curso foi muito útil para mim e também para aplicação do meu dia a dia",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "A princípio nem uma melhoria na estrutura",
+        "marcou": "As dores que os líderes tem em relação as equipes no dia a dia",
+        "cursos": "Imersão para Casais",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:00:14",
+        "nps": 10,
+        "motivo": "Porque é a ferramenta necessária para conseguirmos alcançar ótimos resultados. Conhecer para poder aplicar e poder cobrar.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Nenhum",
+        "marcou": "O quanto o ser humano precisa calibrar, mensurar, compreender,...para poder auxiliar alguém.",
+        "cursos": "Encontro Majestoso - 7˚ Edição",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:00:40",
+        "nps": 10,
+        "motivo": "Precisamos nos conhecer para poder liderar.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Nesse momento minha sugestão é continuar no formato, pois o mesmo é muito claro e objetivo.",
+        "marcou": "A observação nos detalhes que muitas vezes escondem o informação que precisamos.",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:01:14",
+        "nps": 10,
+        "motivo": "Porque a Imersãode liderança humanizada me trouxe muitas informações e clareza para eu atuar como líder da minha equipe.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Para mim trouxe clareza",
+        "marcou": "Clareza e aprendizado.",
+        "cursos": "Mentoria para Mulheres - T11 Online",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:01:15",
+        "nps": 10,
+        "motivo": "Formação de Excelência pela sua qualidade de conteúdo, dinâmicas e explanação do conteúdo.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Está tudo muito bom",
+        "marcou": "O quantidade de conteúdo",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:01:23",
+        "nps": 10,
+        "motivo": "A minha experiência neste curso foi de muito conhecimento, aprendizado e cada vez mais me surpreendo, sempre tem algo novo a se aprender.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Nada a melhorar",
+        "marcou": "Está sendo uma experiência maravilhosa, saindo do curso com uma bagagem de informações e boas dicas e muitas experiências compartilhadas. \nGrata!",
+        "cursos": "Imersão para Casais",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:01:30",
+        "nps": 10,
+        "motivo": "Amei o curso",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Mais horas de curso, podemos fazer em dois finais de semana 4 dias.",
+        "marcou": "A coerência e responsabilidade que temos.",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:01:30",
+        "nps": 10,
+        "motivo": "Achei bem didático, exemplos práticos e aplicáveis.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Dinâmicas são a melhor forma de internalizar o conhecimento.",
+        "marcou": "Acredite nas complementaridade.",
+        "cursos": "Educação Emocional na prática com Constelação Familiar - 19˚ Edição",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:01:34",
+        "nps": 10,
+        "motivo": "Pelo conteúdo do curso",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Tá muito bom",
+        "marcou": "O conhecimento",
+        "cursos": "Imersão para Casais",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:01:50",
+        "nps": 10,
+        "motivo": "Porque ele aborda aspectos que transformam os resultados do profissional, da equipe e da empresa, que não estão acessíveis em outros treinamentos que conheço.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "O tempo para aprofundamento do tema pode ser maior.",
+        "marcou": "O quanto sou responsável pelos resultados e comportamentos do meu time, além do quanto tenho aspectos a serem explorados.",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:02:00",
+        "nps": 10,
+        "motivo": "Porque,para mim, contemplou todas minhas expectativas.",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Zero",
+        "marcou": "A qualidade dos conteúdos, a forma clara de abordagem, é especialmente  prazeroso a todo o tempo",
+        "cursos": "Encontro Majestoso - 7˚ Edição",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 19:02:24",
+        "nps": 9,
+        "motivo": "Conteúdo atrativo e que faz as pessoas repensar, boas dinanicas com interação dos participantes que gera interresse.",
+        "atendimento": 9,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 9,
+        "melhorias": "Sugestão inverter parte de Plano de ação + PDCA para no máximo segundo dia na parte da manhã, pois ficou corrido no final e este ponto é uma baita diferencial para formação de liderança.",
+        "marcou": "Rever conceitos",
+        "cursos": "Formação Avançada de Líderes Sistêmicos",
+        "nome": "Anônimo"
+    },
+    {
+        "timestamp": "17/05/2026 21:21:07",
+        "nps": 10,
+        "motivo": "Pela experiência e pela condução do trabalho",
+        "atendimento": 10,
+        "alimentacao": 10,
+        "material": 10,
+        "conteudo": 10,
+        "melhorias": "Acrescentaria mais horas de treinamento e incluiria no processo uma avaliação individual com a Elis",
+        "marcou": "Foram tantas coisas. Levo comigo a necessidade incansável de auto conhecimento,  de ter fé, honra e gratidão pelo que já tem para alcançar coisas maiores.",
+        "cursos": "Formação Avançada de Líderes Sistêmicos, Educação Emocional na prática com Constelação Familiar - 19˚ Edição, Imersão para Casais, Encontro Majestoso - 7˚ Edição, Mentoria para Mulheres - T11 Online, Atendimento Terapêutico",
+        "nome": "Anônimo"
+    }
+];
+}
 
-  const hora =
-    pad(n.getHours()) + ':' +
-    pad(n.getMinutes()) + ':' +
-    pad(n.getSeconds());
+// ─── RENDER ALL ───────────────────────────────────────────────────────
+function renderAll() {
+  if (!allData.length) return;
+  renderKPIs();
+  renderChartNPS();
+  renderChartCriterios();
+  renderChartNPSBar();
+  renderChartSingle('chartAtendimento', 'Atendimento', allData.map(d => d.atendimento));
+  renderChartSingle('chartAlimentacao', 'Alimentação', allData.map(d => d.alimentacao));
+  renderChartSingle('chartMaterial', 'Material', allData.map(d => d.material));
+  renderChartSingle('chartConteudo', 'Conteúdo', allData.map(d => d.conteudo));
+  renderCursos();
+  renderDestaques();
+  renderMelhorias();
+  renderRespondentes();
+}
 
-  const data =
-    pad(n.getDate()) + '/' +
-    pad(n.getMonth() + 1) + '/' +
-    n.getFullYear();
+// ─── KPIs ─────────────────────────────────────────────────────────────
+function renderKPIs() {
+  const total = allData.length;
+  const npsMedia = avg(allData.map(d => d.nps));
+  const promotores = allData.filter(d => d.nps === 10).length;
+  const pctPromo = Math.round(promotores / total * 100);
+  const allScores = allData.flatMap(d => [d.nps, d.atendimento, d.alimentacao, d.material, d.conteudo]);
+  const satGeral = avg(allScores);
 
-  document.getElementById('ov').classList.add('show');
-  document.getElementById('btnReg').disabled = true;
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-nps').innerHTML = npsMedia.toFixed(1) + '<span>/10</span>';
+  document.getElementById('kpi-nps-sub').textContent = promotores + ' notas máximas';
+  document.getElementById('kpi-promotores').innerHTML = pctPromo + '<span>%</span>';
+  document.getElementById('kpi-sat').innerHTML = satGeral.toFixed(1) + '<span>/10</span>';
+  document.getElementById('donutBig').textContent = npsMedia.toFixed(1);
+}
 
-  const payload = {
-    base: BASE_ATUAL,
-    baseNome: BASE_NOME,
-    nome: nome,
-    tipo: tipo,
-    obs: obs,
-    hora: hora,
-    data: data
+// ─── CHART NPS DONUT ──────────────────────────────────────────────────
+function renderChartNPS() {
+  destroyChart('chartNPS');
+  const counts = {10:0, 9:0, other:0};
+  allData.forEach(d => {
+    if (d.nps === 10) counts[10]++;
+    else if (d.nps === 9) counts[9]++;
+    else counts.other++;
+  });
+  const ctx = document.getElementById('chartNPS').getContext('2d');
+  charts.chartNPS = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Nota 10 (Excelente)', 'Nota 9 (Muito Bom)', 'Notas 1-8'],
+      datasets: [{
+        data: [counts[10], counts[9], counts.other],
+        backgroundColor: ['#4A7C59', '#C8973A', '#D4C4A8'],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: 'DM Sans', size: 12 }, color: '#2C1A0E', padding: 16, boxWidth: 12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.label}: ${ctx.raw} respondentes`
+          }
+        }
+      }
+    }
+  });
+}
+
+// ─── CHART CRITERIOS BAR ─────────────────────────────────────────────
+function renderChartCriterios() {
+  destroyChart('chartCriterios');
+  const labels = ['NPS', 'Atendimento', 'Alimentação', 'Material', 'Conteúdo'];
+  const medias = [
+    avg(allData.map(d => d.nps)),
+    avg(allData.map(d => d.atendimento)),
+    avg(allData.map(d => d.alimentacao)),
+    avg(allData.map(d => d.material)),
+    avg(allData.map(d => d.conteudo)),
+  ];
+  const ctx = document.getElementById('chartCriterios').getContext('2d');
+  charts.chartCriterios = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: medias,
+        backgroundColor: ['#C8973A','#4A7C59','#8B6340','#6BA082','#3D2510'],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      scales: {
+        x: { min: 0, max: 10, grid: { color: '#EDE6D6' }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#7A5C42' } },
+        y: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 12 }, color: '#2C1A0E' } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` Média: ${ctx.raw.toFixed(2)}` } }
+      }
+    }
+  });
+}
+
+// ─── CHART NPS BAR ───────────────────────────────────────────────────
+function renderChartNPSBar() {
+  destroyChart('chartNPSBar');
+  const counts = {};
+  for (let i = 0; i <= 10; i++) counts[i] = 0;
+  allData.forEach(d => counts[d.nps]++);
+  const ctx = document.getElementById('chartNPSBar').getContext('2d');
+  charts.chartNPSBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(counts),
+      datasets: [{
+        label: 'Respostas',
+        data: Object.values(counts),
+        backgroundColor: Object.keys(counts).map(k => k == 10 ? '#4A7C59' : k == 9 ? '#C8973A' : '#D4C4A8'),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'DM Sans', size: 11 }, color: '#7A5C42' }, grid: { color: '#EDE6D6' } },
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 12 }, color: '#2C1A0E' } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ─── CHART SINGLE ────────────────────────────────────────────────────
+function renderChartSingle(id, label, values) {
+  destroyChart(id);
+  const counts = {};
+  for (let i = 0; i <= 10; i++) counts[i] = 0;
+  values.forEach(v => { if (counts[v] !== undefined) counts[v]++; });
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(counts),
+      datasets: [{
+        label,
+        data: Object.values(counts),
+        backgroundColor: Object.keys(counts).map(k => k >= 9 ? '#4A7C59' : k >= 7 ? '#C8973A' : '#C0392B'),
+        borderRadius: 5
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'DM Sans', size: 10 }, color: '#7A5C42' }, grid: { color: '#EDE6D6' } },
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#2C1A0E' } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ─── CURSOS ───────────────────────────────────────────────────────────
+function renderCursos() {
+  const counts = {};
+  allData.forEach(d => {
+    if (!d.cursos) return;
+    d.cursos.split(',').forEach(c => {
+      const k = c.trim();
+      if (k) counts[k] = (counts[k] || 0) + 1;
+    });
+  });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  const max = sorted[0]?.[1] || 1;
+  const html = sorted.map(([name, count]) => `
+    <div class="curso-bar-item">
+      <div class="curso-bar-label">${name}</div>
+      <div class="curso-bar-track">
+        <div class="curso-bar-fill" style="width:${Math.round(count/max*100)}%"></div>
+      </div>
+      <div class="curso-bar-num">${count}</div>
+    </div>
+  `).join('');
+  document.getElementById('cursosContainer').innerHTML = html;
+}
+
+// ─── DESTAQUES ────────────────────────────────────────────────────────
+function renderDestaques() {
+  const destaques = allData
+    .filter(d => d.marcou && d.marcou.length > 30)
+    .slice(0, 5)
+    .map(d => `<div class="destaque-item">${d.marcou}</div>`)
+    .join('');
+  document.getElementById('destaqueList').innerHTML = destaques;
+}
+
+// ─── MELHORIAS ────────────────────────────────────────────────────────
+function renderMelhorias() {
+  const negativas = ['nada', 'nenhum', 'zero', 'tudo bom', 'maravilhoso', 'excelente', 'continua', 'continuen', 'muito bom', 'está tudo', 'trouxe clareza'];
+  const sugestoes = allData
+    .map(d => d.melhorias)
+    .filter(m => {
+      if (!m || m.length < 10) return false;
+      const lc = m.toLowerCase();
+      return !negativas.some(n => lc.includes(n));
+    });
+
+  const temas = {
+    'Tempo & Duração': [],
+    'Material Didático': [],
+    'Estrutura & Logística': [],
+    'Conteúdo & Metodologia': [],
   };
 
-  fetch(URL_API, {
-    method: "POST",
-    mode: "no-cors",
-    body: JSON.stringify(payload)
-  })
-  .then(() => {
-    document.getElementById('ov').classList.remove('show');
-
-    document.getElementById('rbase').textContent = BASE_NOME;
-    document.getElementById('rn').textContent = nome;
-
-    document.getElementById('rti').innerHTML =
-      '<span class="pill ' +
-      (tipo === 'Entrada' ? 'e' : 's') +
-      '">' +
-      tipo +
-      '</span>';
-
-    document.getElementById('rh').textContent = hora;
-    document.getElementById('rd').textContent = data;
-
-    if (obs) {
-      document.getElementById('rob').textContent = obs;
-      document.getElementById('ro').style.display = 'flex';
+  sugestoes.forEach(s => {
+    const lc = s.toLowerCase();
+    if (lc.includes('tempo') || lc.includes('horas') || lc.includes('dias') || lc.includes('cedo') || lc.includes('corrido')) {
+      temas['Tempo & Duração'].push(s);
+    } else if (lc.includes('material') || lc.includes('apostila') || lc.includes('espaço') || lc.includes('página') || lc.includes('organograma')) {
+      temas['Material Didático'].push(s);
+    } else if (lc.includes('refeição') || lc.includes('aliment') || lc.includes('prato') || lc.includes('pausas') || lc.includes('pé')) {
+      temas['Estrutura & Logística'].push(s);
+    } else {
+      temas['Conteúdo & Metodologia'].push(s);
     }
-
-    document.getElementById('sr').className =
-      'sr' + (tipo === 'Saída' ? ' saida' : '');
-
-    document.getElementById('rt').textContent =
-      tipo === 'Entrada'
-        ? 'Bom dia, ' + nome + '! 👋'
-        : 'Até logo, ' + nome + '! 👋';
-
-    show('s4');
-  })
-  .catch(err => {
-    document.getElementById('ov').classList.remove('show');
-    document.getElementById('btnReg').disabled = false;
-
-    alert('Erro ao registrar: ' + err);
   });
+
+  const tagClasses = ['tag-orange', 'tag-blue', 'tag-red', 'tag-green'];
+  const icons = ['⏱', '📋', '🏨', '📚'];
+
+  let html = '';
+  Object.entries(temas).forEach(([tema, items], i) => {
+    if (!items.length) return;
+    const uniqueItems = [...new Set(items)].slice(0, 4);
+    html += `
+      <div class="melhoria-card">
+        <div class="melhoria-tag ${tagClasses[i]}">${icons[i]} ${tema}</div>
+        <h3>${tema}</h3>
+        ${uniqueItems.map(item => `
+          <div class="melhoria-item">
+            <div class="melhoria-dot"></div>
+            <div>${item}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  });
+
+  // Summary card
+  html += `
+    <div class="melhoria-card full">
+      <div class="melhoria-tag tag-green">✓ Pontos Positivos Mais Citados</div>
+      <h3>O que os participantes mais elogiaram</h3>
+      ${['Autoconhecimento e transformação pessoal', 'Qualidade e profundidade do conteúdo', 'Troca de experiências entre participantes', 'Aplicabilidade prática no dia a dia', 'Dedicação e expertise da facilitadora Elis'].map(p => `
+        <div class="melhoria-item">
+          <div class="melhoria-dot" style="background:var(--green)"></div>
+          <div>${p}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  document.getElementById('melhoriaGrid').innerHTML = html;
 }
 
-function novo() {
-  location.reload();
+// ─── RESPONDENTES ────────────────────────────────────────────────────
+function renderRespondentes() {
+  const rows = allData.map(d => {
+    const npsClass = d.nps === 10 ? 'score-10' : d.nps === 9 ? 'score-9' : 'score-low';
+    return `
+      <tr>
+        <td><strong>${d.nome}</strong></td>
+        <td style="color:var(--text-muted);white-space:nowrap">${d.timestamp}</td>
+        <td><span class="score-badge ${npsClass}">${d.nps}</span></td>
+        <td><span class="score-badge ${d.atendimento >= 9 ? 'score-10' : 'score-low'}">${d.atendimento}</span></td>
+        <td><span class="score-badge ${d.alimentacao >= 9 ? 'score-10' : 'score-low'}">${d.alimentacao}</span></td>
+        <td><span class="score-badge ${d.material >= 9 ? 'score-10' : 'score-low'}">${d.material}</span></td>
+        <td><span class="score-badge ${d.conteudo >= 9 ? 'score-10' : 'score-low'}">${d.conteudo}</span></td>
+        <td style="font-size:11px;color:var(--text-muted);max-width:200px">${d.cursos || '—'}</td>
+      </tr>
+    `;
+  }).join('');
+  document.getElementById('respondentesBody').innerHTML = rows;
 }
+
+// ─── EXPORT PDF ──────────────────────────────────────────────────────
+async function exportPDF() {
+  showToast('⏳ Gerando PDF...');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  const W = 297, H = 210;
+  const brown = [61, 37, 16];
+  const gold = [200, 151, 58];
+  const green = [74, 124, 89];
+  const cream = [245, 240, 232];
+  const white = [253, 250, 245];
+  const textMuted = [122, 92, 66];
+
+  // Helper
+  const rgbStr = (r,g,b) => [r,g,b];
+
+  // BG
+  doc.setFillColor(...cream);
+  doc.rect(0, 0, W, H, 'F');
+
+  // Left stripe
+  doc.setFillColor(...brown);
+  doc.rect(0, 0, 54, H, 'F');
+
+  // Gold accent line
+  doc.setFillColor(...gold);
+  doc.rect(54, 0, 2, H, 'F');
+
+  // Logo area
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(200, 151, 58);
+  doc.text('ELIS FORMAIO', 27, 22, { align: 'center' });
+  doc.setFontSize(8);
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica', 'normal');
+  doc.text('LIDERANÇA 12', 27, 30, { align: 'center' });
+  doc.text('Dashboard de Resultados', 27, 36, { align: 'center' });
+
+  // Divider in sidebar
+  doc.setDrawColor(255,255,255);
+  doc.setGlobalAlpha = 0.1;
+  doc.line(10, 42, 44, 42);
+
+  // Sidebar info
+  const total = allData.length;
+  const npsMedia = avg(allData.map(d => d.nps));
+  const mediaAt = avg(allData.map(d => d.atendimento));
+  const mediaAl = avg(allData.map(d => d.alimentacao));
+  const mediaMat = avg(allData.map(d => d.material));
+  const mediaCont = avg(allData.map(d => d.conteudo));
+
+  const sidebarItems = [
+    { label: 'Respondentes', value: total.toString() },
+    { label: 'NPS Médio', value: npsMedia.toFixed(1) + '/10' },
+    { label: 'Atendimento', value: mediaAt.toFixed(1) + '/10' },
+    { label: 'Alimentação', value: mediaAl.toFixed(1) + '/10' },
+    { label: 'Material', value: mediaMat.toFixed(1) + '/10' },
+    { label: 'Conteúdo', value: mediaCont.toFixed(1) + '/10' },
+  ];
+
+  let sy = 52;
+  sidebarItems.forEach(item => {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(180, 150, 110);
+    doc.text(item.label.toUpperCase(), 27, sy, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text(item.value, 27, sy + 7, { align: 'center' });
+    sy += 22;
+  });
+
+  // Date
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(130, 100, 70);
+  doc.text('Gerado em ' + new Date().toLocaleDateString('pt-BR'), 27, H - 8, { align: 'center' });
+
+  // MAIN CONTENT
+  const mx = 62;
+  const mw = W - mx - 8;
+
+  // Title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(...brown);
+  doc.text('Resultado da Pesquisa de Satisfação', mx, 18);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...textMuted);
+  doc.text('Imersão de Liderança Humanizada e Positiva — Serra Gaúcha, Maio 2026', mx, 25);
+
+  // Divider
+  doc.setDrawColor(...gold);
+  doc.setLineWidth(0.5);
+  doc.line(mx, 29, W - 8, 29);
+
+  // ---- SECTION: CRITERIOS ----
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...textMuted);
+  doc.text('AVALIAÇÕES POR CRITÉRIO', mx, 37);
+
+  const criterios = [
+    { label: 'NPS', value: npsMedia, color: gold },
+    { label: 'Atendimento', value: mediaAt, color: green },
+    { label: 'Alimentação', value: mediaAl, color: [139, 99, 64] },
+    { label: 'Material', value: mediaMat, color: [107, 160, 130] },
+    { label: 'Conteúdo', value: mediaCont, color: brown },
+  ];
+
+  const barX = mx;
+  const barY = 41;
+  const barH = 12;
+  const barGap = 16;
+  const barMaxW = mw * 0.55;
+
+  criterios.forEach((c, i) => {
+    const y = barY + i * barGap;
+    const fillW = (c.value / 10) * barMaxW;
+
+    // Label
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...textMuted);
+    doc.text(c.label, barX, y + 7);
+
+    // Track
+    doc.setFillColor(220, 210, 195);
+    doc.roundedRect(barX + 28, y + 1, barMaxW, barH - 2, 2, 2, 'F');
+
+    // Fill
+    doc.setFillColor(...c.color);
+    doc.roundedRect(barX + 28, y + 1, fillW, barH - 2, 2, 2, 'F');
+
+    // Value
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...brown);
+    doc.text(c.value.toFixed(1), barX + 28 + barMaxW + 4, y + 8);
+  });
+
+  // NPS Distribution
+  const nps10 = allData.filter(d => d.nps === 10).length;
+  const nps9 = allData.filter(d => d.nps === 9).length;
+  const npsOther = total - nps10 - nps9;
+
+  const pieX = mx + barMaxW + 50;
+  const pieY = 65;
+  const pieR = 20;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...textMuted);
+  doc.text('DISTRIBUIÇÃO NPS', pieX - 10, 37);
+
+  // Simple pie via arcs
+  const pieData = [
+    { val: nps10 / total, color: green, label: `Nota 10: ${nps10}` },
+    { val: nps9 / total, color: gold, label: `Nota 9: ${nps9}` },
+    { val: npsOther / total, color: [212, 196, 168], label: `Outras: ${npsOther}` },
+  ];
+
+  let startAngle = -Math.PI / 2;
+  pieData.forEach(seg => {
+    const endAngle = startAngle + seg.val * 2 * Math.PI;
+    doc.setFillColor(...seg.color);
+    // jsPDF doesn't have arc fill natively — use ellipse segments approximation
+    const steps = 30;
+    const pts = [[pieX, pieY]];
+    for (let s = 0; s <= steps; s++) {
+      const a = startAngle + (endAngle - startAngle) * s / steps;
+      pts.push([pieX + pieR * Math.cos(a), pieY + pieR * Math.sin(a)]);
+    }
+    // Draw filled polygon
+    doc.setFillColor(...seg.color);
+    doc.setDrawColor(...seg.color);
+    const pathStr = pts.map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(' ') + ' Z';
+    // fallback: just draw a filled arc via lines
+    doc.lines(
+      pts.slice(1).map((p, i) => [p[0] - pts[i][0], p[1] - pts[i][1]]),
+      pts[0][0], pts[0][1], [1, 1], 'F', true
+    );
+    startAngle = endAngle;
+  });
+
+  // Center hole
+  doc.setFillColor(...cream);
+  doc.circle(pieX, pieY, pieR * 0.55, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...brown);
+  doc.text(npsMedia.toFixed(1), pieX, pieY + 3, { align: 'center' });
+
+  // Legend
+  let legY = pieY + pieR + 6;
+  pieData.forEach(seg => {
+    doc.setFillColor(...seg.color);
+    doc.rect(pieX - 18, legY - 3, 6, 4, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...textMuted);
+    doc.text(seg.label, pieX - 10, legY);
+    legY += 6;
+  });
+
+  // ---- MELHORIAS SECTION ----
+  doc.setDrawColor(...gold);
+  doc.setLineWidth(0.3);
+  doc.line(mx, 124, W - 8, 124);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...textMuted);
+  doc.text('PRINCIPAIS PONTOS DE MELHORIA', mx, 131);
+
+  const melhoriasTemas = [
+    { tema: '⏱ Tempo & Duração', desc: 'Ampliar carga horária; iniciar mais cedo; distribuir conteúdo em mais dias.' },
+    { tema: '📋 Material Didático', desc: 'Mais espaço para anotações; verificar completude das apostilas.' },
+    { tema: '🏨 Estrutura & Logística', desc: 'Melhorar infraestrutura das refeições; incluir mais pausas.' },
+    { tema: '📚 Conteúdo & Metodologia', desc: 'Antecipar PDI para o início; reposicionar PDCA para manhã do 2° dia.' },
+  ];
+
+  let mCol = 0;
+  melhoriasTemas.forEach((m, i) => {
+    const colX = mx + mCol * (mw / 2 + 2);
+    const rowY = 136 + Math.floor(i / 2) * 24;
+    doc.setFillColor(white[0] || 253, white[1] || 250, white[2] || 245);
+    doc.roundedRect(colX, rowY, mw / 2 - 2, 20, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...brown);
+    doc.text(m.tema, colX + 4, rowY + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...textMuted);
+    const lines = doc.splitTextToSize(m.desc, mw / 2 - 10);
+    doc.text(lines, colX + 4, rowY + 13);
+    mCol = mCol === 0 ? 1 : 0;
+  });
+
+  // Footer
+  doc.setFillColor(...brown);
+  doc.rect(0, H - 10, W, 10, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(200, 151, 58);
+  doc.text('Elis Formaio — Liderança 12 · Dashboard de Resultados · Confidencial', W / 2, H - 4, { align: 'center' });
+
+  doc.save('ElisFormaio_Lideranca12_Resultados.pdf');
+  showToast('✓ PDF exportado com sucesso!');
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────
+function avg(arr) {
+  const valid = arr.filter(v => !isNaN(v) && v > 0);
+  return valid.length ? valid.reduce((a,b) => a+b, 0) / valid.length : 0;
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => loadEmbeddedData(), 400);
+});
 </script>
-
 </body>
 </html>
