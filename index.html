@@ -621,8 +621,8 @@
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="sheet-input-group">
-      <label>Planilha</label>
-      <input type="text" class="sheet-input" id="sheetUrl" placeholder="Automático: usa a planilha configurada no código. Opcional: cole outro link aqui..." value="">
+      <label>Apps Script</label>
+      <input type="text" class="sheet-input" id="sheetUrl" placeholder="Automático: usa o Apps Script configurado no código. Opcional: cole outra URL /exec aqui..." value="">
     </div>
     <div class="topbar-right">
       <button class="btn btn-primary" onclick="loadData()">
@@ -786,13 +786,14 @@
 </div><!-- /main -->
 
 <script>
-// ─── CONFIGURAÇÃO DA PLANILHA / BANCO DE DADOS ───────────────────────
-// Troque apenas o SHEET_ID abaixo quando quiser conectar outra planilha.
-// O SHEET_GID é o ID da aba. Normalmente, a primeira aba da planilha é gid=0.
-const SHEET_ID = "1v1LPmMq7wxCf4bAPE7eygS9U2xfDREt4L1WUEdpyVnQ";
-const SHEET_GID = "0";
-const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
-const SHEET_EDIT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit?usp=sharing`;
+// ─── CONFIGURAÇÃO DO APPS SCRIPT / BANCO DE DADOS ─────────────────────
+// 1) Publique seu Apps Script como Aplicativo da Web.
+// 2) Cole abaixo a URL que termina com /exec.
+// Exemplo: https://script.google.com/macros/s/SEU_CODIGO_AQUI/exec
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPRnHv0jNS8FCYM0xbot0r7qkbj4akydeJhKBvTQ2LyXeLEBr-EffNfPEXjTQr2fdmDw/exec";
+
+// Opcional: link da planilha para o botão "Ver Planilha".
+const PLANILHA_EDIT_URL = "https://docs.google.com/spreadsheets/d/1v1LPmMq7wxCf4bAPE7eygS9U2xfDREt4L1WUEdpyVnQ/edit?usp=sharing";
 
 // ─── STATE ───────────────────────────────────────────────────────────
 let allData = [];
@@ -820,137 +821,87 @@ function loadEmbeddedData() {
 async function loadData() {
   showLoading(true);
 
-  let url = document.getElementById('sheetUrl').value.trim();
-
-  // Se não for colado nenhum link no campo, usa a planilha fixa configurada acima.
-  if (!url) {
-    url = SHEET_CSV_URL;
-  }
-
-  // Converte link normal do Google Sheets em link CSV.
-  if (url.includes('/edit') || url.includes('/view') || (!url.includes('export'))) {
-    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    if (match) {
-      url = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv&gid=${SHEET_GID}`;
-    }
-  }
-
   try {
-    const resp = await fetch(url, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('Falha ao carregar planilha');
+    let apiUrl = document.getElementById('sheetUrl').value.trim();
 
-    const text = await resp.text();
-    const data = parseCSV(text);
-
-    if (!data.length) {
-      throw new Error('A planilha carregou, mas não encontrei linhas válidas. Confira a ordem das colunas.');
+    // Se não for colada nenhuma URL no campo, usa a URL fixa configurada acima.
+    if (!apiUrl) {
+      apiUrl = APPS_SCRIPT_URL;
     }
 
-    allData = data;
+    if (!apiUrl || apiUrl.includes('COLE_AQUI')) {
+      throw new Error('Cole a URL do Apps Script na variável APPS_SCRIPT_URL.');
+    }
+
+    const json = await loadFromAppsScript(apiUrl);
+
+    if (!json || !json.ok) {
+      throw new Error((json && json.error) ? json.error : 'Erro ao carregar dados do Apps Script.');
+    }
+
+    if (!json.data || !json.data.length) {
+      throw new Error('O Apps Script respondeu, mas não retornou dados válidos.');
+    }
+
+    allData = json.data;
     renderAll();
 
     document.getElementById('lastSync').textContent =
-      'Dados da planilha sincronizados em: ' + new Date().toLocaleString('pt-BR');
+      'Dados sincronizados via Apps Script em: ' + new Date().toLocaleString('pt-BR');
 
-    showToast('✓ Dados sincronizados com sucesso!');
+    showToast('✓ Dados carregados do Apps Script com sucesso!');
   } catch(e) {
     console.warn(e);
 
-    // Se a planilha não abrir, o painel usa os dados internos como segurança.
+    // Se o Apps Script não responder, o painel usa os dados internos como segurança.
     allData = getEmbeddedData();
     renderAll();
 
     document.getElementById('lastSync').textContent =
-      'Dados embutidos usados porque a planilha não pôde ser acessada — ' + new Date().toLocaleString('pt-BR');
+      'Dados embutidos usados porque o Apps Script não pôde ser acessado — ' + new Date().toLocaleString('pt-BR');
 
-    showToast('⚠ Usando dados embutidos. Verifique se a planilha está pública.');
+    showToast('⚠ Usando dados embutidos. Verifique a URL do Apps Script.');
   }
 
   showLoading(false);
 }
 
-// ─── PARSE CSV ───────────────────────────────────────────────────────
-function parseCSV(text) {
-  const rowsRaw = csvToRows(text);
-  if (rowsRaw.length < 2) return [];
+// Carrega o Apps Script via JSONP.
+// Isso evita bloqueio de CORS quando o dashboard estiver publicado no GitHub Pages.
+function loadFromAppsScript(apiUrl) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'appsScriptCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+    const separator = apiUrl.includes('?') ? '&' : '?';
+    const script = document.createElement('script');
 
-  const rows = [];
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('Tempo esgotado ao carregar o Apps Script.'));
+    }, 20000);
 
-  // Pula o cabeçalho: começa na linha 1.
-  for (let i = 1; i < rowsRaw.length; i++) {
-    const cols = rowsRaw[i].map(cleanCell);
-    if (cols.length < 6) continue;
-
-    const nps = toNumber(cols[1]);
-    if (isNaN(nps)) continue;
-
-    rows.push({
-      timestamp: cols[0] || '',
-      nps: nps,
-      motivo: cols[2] || '',
-      atendimento: toNumber(cols[3]) || 0,
-      alimentacao: toNumber(cols[4]) || 0,
-      material: toNumber(cols[5]) || 0,
-      conteudo: toNumber(cols[6]) || 0,
-      melhorias: cols[7] || '',
-      marcou: cols[8] || '',
-      cursos: cols[9] || '',
-      nome: cols[10] || 'Anônimo'
-    });
-  }
-
-  return rows;
-}
-
-// Leitor CSV mais seguro: entende vírgulas, aspas e quebras de linha dentro das respostas.
-function csvToRows(text) {
-  const rows = [];
-  let row = [];
-  let cell = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const next = text[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        cell += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
+    function cleanup() {
+      clearTimeout(timeout);
+      delete window[callbackName];
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
       }
-    } else if (char === ',' && !inQuotes) {
-      row.push(cell);
-      cell = '';
-    } else if ((char === '
-' || char === '
-') && !inQuotes) {
-      if (char === '
-' && next === '
-') i++;
-      row.push(cell);
-      if (row.some(c => String(c).trim() !== '')) rows.push(row);
-      row = [];
-      cell = '';
-    } else {
-      cell += char;
     }
-  }
 
-  row.push(cell);
-  if (row.some(c => String(c).trim() !== '')) rows.push(row);
-  return rows;
+    window[callbackName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = function() {
+      cleanup();
+      reject(new Error('Erro ao carregar o Apps Script. Confira se a implantação está pública.'));
+    };
+
+    script.src = apiUrl + separator + 'action=list&callback=' + encodeURIComponent(callbackName) + '&_=' + Date.now();
+    document.body.appendChild(script);
+  });
 }
 
-function cleanCell(value) {
-  return String(value || '').trim();
-}
-
-function toNumber(value) {
-  const n = parseFloat(String(value || '').replace(',', '.'));
-  return Number.isFinite(n) ? n : 0;
-}
 
 // ─── EMBEDDED DATA ───────────────────────────────────────────────────
 function getEmbeddedData() {
@@ -2028,10 +1979,13 @@ function showToast(msg) {
 
 // ─── INIT ─────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  // Atualiza o botão "Ver Planilha" com a planilha configurada acima.
-  document.getElementById('sheetLink').href = SHEET_EDIT_URL;
+  // Atualiza o botão "Ver Planilha" com o link configurado acima.
+  const sheetLink = document.getElementById('sheetLink');
+  if (sheetLink && PLANILHA_EDIT_URL) {
+    sheetLink.href = PLANILHA_EDIT_URL;
+  }
 
-  // Ao abrir o painel, já busca automaticamente a planilha configurada.
+  // Ao abrir o painel, já busca automaticamente os dados pelo Apps Script.
   setTimeout(() => loadData(), 400);
 });
 </script>
