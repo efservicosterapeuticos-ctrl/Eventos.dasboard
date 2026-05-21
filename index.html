@@ -944,12 +944,12 @@ function csvToRows(text) {
 }
 
 function cleanCell(value) {
-  return String(value || '').replace(/^"|"$/g, '').trim();
+  return String(value || '').trim();
 }
 
 function toNumber(value) {
-  const n = parseFloat(String(value || '').replace(',', '.').trim());
-  return isNaN(n) ? 0 : n;
+  const n = parseFloat(String(value || '').replace(',', '.'));
+  return Number.isFinite(n) ? n : 0;
 }
 
 // ─── EMBEDDED DATA ───────────────────────────────────────────────────
