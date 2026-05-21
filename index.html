@@ -622,7 +622,7 @@
   <div class="topbar">
     <div class="sheet-input-group">
       <label>Planilha</label>
-      <input type="text" class="sheet-input" id="sheetUrl" placeholder="Opcional: cole aqui o link da planilha Google Sheets para sincronizar..." value="">
+      <input type="text" class="sheet-input" id="sheetUrl" placeholder="Automático: usa a planilha configurada no código. Opcional: cole outro link aqui..." value="">
     </div>
     <div class="topbar-right">
       <button class="btn btn-primary" onclick="loadData()">
@@ -786,6 +786,14 @@
 </div><!-- /main -->
 
 <script>
+// ─── CONFIGURAÇÃO DA PLANILHA / BANCO DE DADOS ───────────────────────
+// Troque apenas o SHEET_ID abaixo quando quiser conectar outra planilha.
+// O SHEET_GID é o ID da aba. Normalmente, a primeira aba da planilha é gid=0.
+const SHEET_ID = "1v1LPmMq7wxCf4bAPE7eygS9U2xfDREt4L1WUEdpyVnQ";
+const SHEET_GID = "0";
+const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+const SHEET_EDIT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit?usp=sharing`;
+
 // ─── STATE ───────────────────────────────────────────────────────────
 let allData = [];
 let charts = {};
@@ -811,90 +819,137 @@ function loadEmbeddedData() {
 // ─── LOAD DATA ───────────────────────────────────────────────────────
 async function loadData() {
   showLoading(true);
+
   let url = document.getElementById('sheetUrl').value.trim();
 
+  // Se não for colado nenhum link no campo, usa a planilha fixa configurada acima.
   if (!url) {
-    allData = getEmbeddedData();
-    renderAll();
-    document.getElementById('lastSync').textContent = 'Dados embutidos no código — ' + new Date().toLocaleString('pt-BR');
-    showToast('✓ Dados embutidos carregados');
-    showLoading(false);
-    return;
+    url = SHEET_CSV_URL;
   }
 
-  // Convert normal share link to CSV export URL
+  // Converte link normal do Google Sheets em link CSV.
   if (url.includes('/edit') || url.includes('/view') || (!url.includes('export'))) {
     const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
     if (match) {
-      url = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv&gid=0`;
+      url = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv&gid=${SHEET_GID}`;
     }
   }
 
   try {
-    const resp = await fetch(url);
+    const resp = await fetch(url, { cache: 'no-store' });
     if (!resp.ok) throw new Error('Falha ao carregar planilha');
+
     const text = await resp.text();
-    allData = parseCSV(text);
+    const data = parseCSV(text);
+
+    if (!data.length) {
+      throw new Error('A planilha carregou, mas não encontrei linhas válidas. Confira a ordem das colunas.');
+    }
+
+    allData = data;
     renderAll();
-    document.getElementById('lastSync').textContent = 'Dados da planilha sincronizados em: ' + new Date().toLocaleString('pt-BR');
+
+    document.getElementById('lastSync').textContent =
+      'Dados da planilha sincronizados em: ' + new Date().toLocaleString('pt-BR');
+
     showToast('✓ Dados sincronizados com sucesso!');
   } catch(e) {
-    // Fallback to embedded data
+    console.warn(e);
+
+    // Se a planilha não abrir, o painel usa os dados internos como segurança.
     allData = getEmbeddedData();
     renderAll();
-    document.getElementById('lastSync').textContent = 'Dados embutidos (offline) — ' + new Date().toLocaleString('pt-BR');
-    showToast('⚠ Usando dados embutidos (planilha inacessível)');
+
+    document.getElementById('lastSync').textContent =
+      'Dados embutidos usados porque a planilha não pôde ser acessada — ' + new Date().toLocaleString('pt-BR');
+
+    showToast('⚠ Usando dados embutidos. Verifique se a planilha está pública.');
   }
+
   showLoading(false);
 }
 
 // ─── PARSE CSV ───────────────────────────────────────────────────────
 function parseCSV(text) {
-  const lines = text.split('\n').filter(l => l.trim());
-  if (lines.length < 2) return [];
-  // skip header
+  const rowsRaw = csvToRows(text);
+  if (rowsRaw.length < 2) return [];
+
   const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const cols = splitCSVLine(lines[i]);
+
+  // Pula o cabeçalho: começa na linha 1.
+  for (let i = 1; i < rowsRaw.length; i++) {
+    const cols = rowsRaw[i].map(cleanCell);
     if (cols.length < 6) continue;
-    const nps = parseInt(cols[1]);
+
+    const nps = toNumber(cols[1]);
     if (isNaN(nps)) continue;
+
     rows.push({
       timestamp: cols[0] || '',
       nps: nps,
       motivo: cols[2] || '',
-      atendimento: parseInt(cols[3]) || 0,
-      alimentacao: parseInt(cols[4]) || 0,
-      material: parseInt(cols[5]) || 0,
-      conteudo: parseInt(cols[6]) || 0,
+      atendimento: toNumber(cols[3]) || 0,
+      alimentacao: toNumber(cols[4]) || 0,
+      material: toNumber(cols[5]) || 0,
+      conteudo: toNumber(cols[6]) || 0,
       melhorias: cols[7] || '',
       marcou: cols[8] || '',
       cursos: cols[9] || '',
       nome: cols[10] || 'Anônimo'
     });
   }
+
   return rows;
 }
 
-function splitCSVLine(line) {
-  const result = [];
-  let current = '';
+// Leitor CSV mais seguro: entende vírgulas, aspas e quebras de linha dentro das respostas.
+function csvToRows(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
   let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === '"') {
-      inQuotes = !inQuotes;
-    } else if (line[i] === '\t' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else if (line[i] === ',' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        cell += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      row.push(cell);
+      cell = '';
+    } else if ((char === '
+' || char === '
+') && !inQuotes) {
+      if (char === '
+' && next === '
+') i++;
+      row.push(cell);
+      if (row.some(c => String(c).trim() !== '')) rows.push(row);
+      row = [];
+      cell = '';
     } else {
-      current += line[i];
+      cell += char;
     }
   }
-  result.push(current.trim());
-  return result;
+
+  row.push(cell);
+  if (row.some(c => String(c).trim() !== '')) rows.push(row);
+  return rows;
+}
+
+function cleanCell(value) {
+  return String(value || '').replace(/^"|"$/g, '').trim();
+}
+
+function toNumber(value) {
+  const n = parseFloat(String(value || '').replace(',', '.').trim());
+  return isNaN(n) ? 0 : n;
 }
 
 // ─── EMBEDDED DATA ───────────────────────────────────────────────────
@@ -1973,7 +2028,11 @@ function showToast(msg) {
 
 // ─── INIT ─────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => loadEmbeddedData(), 400);
+  // Atualiza o botão "Ver Planilha" com a planilha configurada acima.
+  document.getElementById('sheetLink').href = SHEET_EDIT_URL;
+
+  // Ao abrir o painel, já busca automaticamente a planilha configurada.
+  setTimeout(() => loadData(), 400);
 });
 </script>
 </body>
